@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 from core import APP_BUILD, APP_CHANNEL, APP_VERSION
 from settings_store import DEFAULT_SETTINGS
+from settings_store import SettingsStore
 from updater import (
     ReleaseInfo,
     check_for_updates,
@@ -28,6 +29,17 @@ class UpdateLab313Tests(unittest.TestCase):
         builder = (ROOT / "build_release.py").read_text(encoding="utf-8")
         self.assertIn('Source: "dist\\PhysicsMathPocket\\*"', installer)
         self.assertIn("build_update_agent", builder)
+
+    def test_old_local_default_migrates_to_github(self):
+        with tempfile.TemporaryDirectory() as td:
+            store = SettingsStore()
+            old_path = store.path
+            store.path = Path(td) / "settings_v3.json"
+            store.path.write_text(json.dumps({"update_source_mode": "local", "update_repository": ""}), encoding="utf-8")
+            loaded = store.load()
+            store.path = old_path
+            self.assertEqual(loaded["update_source_mode"], "github")
+            self.assertEqual(loaded["update_repository"], "jihun8202-collab/physics-math-pocket")
 
     def test_beta_identity(self):
         self.assertEqual(APP_VERSION, "3.1.7")

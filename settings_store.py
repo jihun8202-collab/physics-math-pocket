@@ -23,6 +23,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "update_channel": "stable",
     "update_manifest_url": "",
     "update_source_mode": "github",
+    "update_defaults_revision": 2,
     "update_local_dir": "",
     "prefer_seamless_update": True,
 }
@@ -34,10 +35,13 @@ class SettingsStore:
 
     def load(self) -> Dict[str, Any]:
         data = dict(DEFAULT_SETTINGS)
+        incoming: Dict[str, Any] = {}
         try:
             incoming = json.loads(self.path.read_text(encoding="utf-8"))
             if isinstance(incoming, dict):
                 data.update(incoming)
+            else:
+                incoming = {}
         except Exception:
             pass
         data["font_scale"] = min(1.4, max(0.8, float(data.get("font_scale", 1.0))))
@@ -57,6 +61,17 @@ class SettingsStore:
             data["update_source_mode"] = "auto"
         data["update_local_dir"] = str(data.get("update_local_dir", "") or "").strip()
         data["prefer_seamless_update"] = bool(data.get("prefer_seamless_update", True))
+        # Migrate the pre-GitHub default (local inbox with no repository). A
+        # deliberate custom repository or manifest remains untouched.
+        try:
+            old_revision = int(incoming.get("update_defaults_revision", 0) or 0)
+        except (TypeError, ValueError):
+            old_revision = 0
+        if old_revision < 2 and not data["update_repository"]:
+            data["update_repository"] = DEFAULT_SETTINGS["update_repository"]
+            if data.get("update_source_mode") in ("auto", "local"):
+                data["update_source_mode"] = DEFAULT_SETTINGS["update_source_mode"]
+        data["update_defaults_revision"] = DEFAULT_SETTINGS["update_defaults_revision"]
         return data
 
     def save(self, data: Dict[str, Any]) -> None:
