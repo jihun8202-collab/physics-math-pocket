@@ -1,6 +1,6 @@
-# Physics + Math Pocket 3.1.8 Beta
+# Physics + Math Pocket 3.2.0
 
-Build 31802 · Beta
+Build 32000 · Stable
 
 - 업데이트 센터에 GitHub 릴리스 변경 내용과 설치 이력을 표시합니다.
 - 원하는 공개 릴리스를 선택해 전체 업데이트 ZIP으로 롤백할 수 있습니다.
