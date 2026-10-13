@@ -16,7 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from core import resource_path, user_data_dir
 
-USER_AGENT = "PhysicsMathPocket-Updater/3.1.6"
+USER_AGENT = "PhysicsMathPocket-Updater/3.1.7"
 
 
 @dataclass

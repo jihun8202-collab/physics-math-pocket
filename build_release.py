@@ -213,7 +213,7 @@ def main() -> int:
 
     LOG.write_text("Physics + Math Pocket {} build {}\n".format(APP_VERSION, APP_BUILD), encoding="utf-8")
     write("=" * 64)
-    write(" Physics + Math Pocket 3.1.6 · Windows 설치 프로그램 만들기")
+    write(" Physics + Math Pocket {} · Windows 설치 프로그램 만들기".format(APP_VERSION))
     write("=" * 64)
     try:
         expected_tag = "v{}_Build{}".format(APP_VERSION, APP_BUILD)

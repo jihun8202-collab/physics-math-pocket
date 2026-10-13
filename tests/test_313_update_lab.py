@@ -21,8 +21,8 @@ from updater import (
 
 class UpdateLab313Tests(unittest.TestCase):
     def test_beta_identity(self):
-        self.assertEqual(APP_VERSION, "3.1.6")
-        self.assertEqual(APP_BUILD, 31600)
+        self.assertEqual(APP_VERSION, "3.1.7")
+        self.assertEqual(APP_BUILD, 31700)
         self.assertEqual(APP_CHANNEL, "stable")
 
     def test_default_build_mapping(self):
@@ -32,7 +32,7 @@ class UpdateLab313Tests(unittest.TestCase):
     def test_local_setup_filename_is_detected(self):
         with tempfile.TemporaryDirectory() as td:
             folder = Path(td)
-            setup = folder / "PhysicsMathPocket_Setup_3.1.6_Beta_Build31601.exe"
+            setup = folder / "PhysicsMathPocket_Setup_3.1.8_Beta_Build31801.exe"
             setup.write_bytes(b"test-installer")
             result = check_for_updates(
                 APP_VERSION,
@@ -44,8 +44,8 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(result.status, "update_available")
             self.assertEqual(result.source, "local")
             self.assertIsNotNone(result.release)
-            self.assertEqual(result.release.version, "3.1.6")
-            self.assertEqual(result.release.build, 31601)
+            self.assertEqual(result.release.version, "3.1.8")
+            self.assertEqual(result.release.build, 31801)
             self.assertTrue(result.release.is_beta)
             self.assertEqual(result.release.sha256, sha256_file(setup))
 
@@ -68,10 +68,10 @@ class UpdateLab313Tests(unittest.TestCase):
             setup = folder / "next.exe"
             setup.write_bytes(b"next-version")
             manifest = {
-                "version": "3.1.6",
-                "build": 31601,
+                "version": "3.1.8",
+                "build": 31801,
                 "channel": "stable",
-                "name": "3.1.6 Stable",
+                "name": "3.1.8 Stable",
                 "file": "next.exe",
                 "sha256": sha256_file(setup),
             }

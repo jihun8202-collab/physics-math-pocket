@@ -14,6 +14,8 @@ from simulations import build_simulator as legacy_build_simulator
 from simulations import simulator_for_term as legacy_simulator_for_term
 
 ENHANCED_TITLES = {
+    "enhanced_collision": "실험 · 여러 물체의 2차원 충돌",
+    "enhanced_force": "실험 · 일정한 힘과 실제 가속 운동",
     "enhanced_projectile": "실험 · 공기 저항과 포물선 운동",
     "enhanced_pendulum": "실험 · 큰 각도와 감쇠 진자",
     "enhanced_spring": "실험 · 마찰이 있는 용수철",
@@ -21,6 +23,16 @@ ENHANCED_TITLES = {
 ENHANCED_SUBJECTS = {sid: "물리" for sid in ENHANCED_TITLES}
 
 SPECS = {
+    "force": {
+        "formula": "a = F/m     x = v₀t + ½at²     v = v₀ + at     ΔK = Fx",
+        "parameters": [
+            ("applied_force", "일정한 수평 힘 F", "N", -50, 50, 8),
+            ("mass", "물체 질량", "kg", 0.1, 10, 2),
+            ("initial_velocity", "처음 수평 속도 v₀", "m/s", -60, 60, 0),
+        ],
+        "notes": "마찰 없는 수평면에서 일정한 외력을 받는 점질량을 계산합니다. x = 0에서 출발합니다. 벽을 두지 않으므로 화면 끝에서 속도가 바뀌지 않습니다. 눈금과 관찰 화면이 물체를 따라 이동합니다. 가속도와 처음 속도가 반대라면 실제로 정지한 뒤 방향을 바꿀 수 있습니다. 조건을 바꾸면 새 실험으로 초기화됩니다.",
+        "source": "https://openstax.org/books/university-physics-volume-1/pages/5-3-newtons-second-law",
+    },
     "projectile": {
         "formula": "F저항 = −D |v| v     ax = −D |v| vx / m     ay = −g − D |v| vy / m",
         "parameters": [
@@ -59,16 +71,30 @@ SPECS = {
     },
 }
 
+LEGACY_PHYSICAL_ALIASES = {
+    "newton2": "enhanced_force", "projectile": "enhanced_projectile",
+    "spring": "enhanced_spring", "elastic_collision": "enhanced_collision",
+}
+
 
 def simulator_for_term(term: dict) -> str:
     explicit = str(term.get("simulator", "")).strip()
-    return explicit if explicit in ENHANCED_TITLES else legacy_simulator_for_term(term)
+    return LEGACY_PHYSICAL_ALIASES.get(explicit, explicit) if explicit in ENHANCED_TITLES or explicit in LEGACY_PHYSICAL_ALIASES else legacy_simulator_for_term(term)
 
 
 def build_simulator(master: tk.Misc, term: dict, theme: dict, fps: int = 30):
     sid = str(term.get("simulator", "")).strip()
-    if sid in ENHANCED_TITLES:
-        return EnhancedSimulator(master, sid, theme, fps)
+    model = LEGACY_PHYSICAL_ALIASES.get(sid, sid)
+    if model == "enhanced_collision":
+        from collision_simulation import CollisionSimulator
+        return CollisionSimulator(master, theme, fps)
+    if model in ENHANCED_TITLES:
+        sim = EnhancedSimulator(master, model, theme, fps)
+        if sid == "projectile":
+            sim._vars["quadratic_drag"].set(0)
+        elif sid == "spring":
+            sim._vars["spring_damping"].set(0)
+        return sim
     return legacy_build_simulator(master, term, theme, fps=fps)
 
 
@@ -216,6 +242,8 @@ class EnhancedSimulator(tk.Frame):
             self.bounds = (0, max(2, vx * duration * 1.08), 0, max(1, (p.initial_height + vy * vy / (2 * p.gravity)) * 1.16))
         elif self.kind == "pendulum":
             self.bounds = (-p.length * 1.3, p.length * 1.3, -p.length * 1.2, p.length * 0.65)
+        elif self.kind == "force":
+            self.bounds = (-2, 8, -0.8, 0.8)
         else:
             limit = max(0.3, p.amplitude * 1.5)
             self.bounds = (-limit, limit, -0.5, 0.5)
@@ -275,6 +303,11 @@ class EnhancedSimulator(tk.Frame):
         for _ in range(steps):
             q = self.engine.step()
             self.t = q.time
+            if self.kind == "force":
+                xmin, xmax, ymin, ymax = self.bounds
+                span = xmax - xmin
+                if q.x > xmin + 0.8 * span or q.x < xmin + 0.2 * span:
+                    self.bounds = (q.x - span / 2, q.x + span / 2, ymin, ymax)
             self.apex = max(self.apex, q.y)
             if round(q.time / FIXED_DT) % 12 == 0 or q.landed:
                 self.trail.append(q); self.history.append(q)
@@ -287,7 +320,7 @@ class EnhancedSimulator(tk.Frame):
         xmin, xmax, ymin, ymax = self.bounds
         w, h = max(220, self.canvas.winfo_width()), self.canvas.winfo_height()
         sx, sy = (w - 72) / (xmax - xmin), (h - 58) / (ymax - ymin)
-        if self.kind != "spring":
+        if self.kind not in ("spring", "force"):
             sx = sy = min(sx, sy)
         left = 53 + (w - 72 - sx * (xmax - xmin)) / 2
         bottom = h - 34 - (h - 58 - sy * (ymax - ymin)) / 2
@@ -355,6 +388,18 @@ class EnhancedSimulator(tk.Frame):
             reference = 2 * math.pi * math.sqrt(p.length / p.gravity)
             self.legend.configure(text="고정점이 원점 · x, y (m) · 같은 축척 · θ: 수직 아래부터 잰 각도 · 파란 화살표: 속도 방향")
             text = f"시간 {q.time:.3f} s   |   각도 {math.degrees(q.angle):.2f}°   |   각속도 {q.angular_velocity:.3f} rad/s\n속력 {q.speed:.3f} m/s   |   역학적 에너지 {q.energy:.3f} J   |   감쇠로 잃은 에너지 {lost:.3f} J\n작은 각도 참고 주기 T₀ {reference:.3f} s · 큰 각도의 실제 주기는 이 값보다 길어집니다."
+        elif self.kind == "force":
+            position = self._map(q.x, 0)
+            c.create_rectangle(position[0]-19,position[1]-19,position[0]+19,position[1]+19,fill=t["accent"],outline=t["surface"],width=2)
+            self._velocity_arrow(*position, q.vx, 0)
+            if abs(p.applied_force) > 1e-12:
+                direction = 1 if p.applied_force > 0 else -1
+                c.create_line(position[0],position[1]+36,position[0]+direction*65,position[1]+36,arrow="last",fill=t["danger"],width=3)
+                c.create_text(position[0]+direction*72,position[1]+36,text="F",fill=t["danger"],font=("Consolas",-12,"bold"))
+            work = p.applied_force * q.x
+            error = q.energy-self.initial_energy-work
+            self.legend.configure(text="x: 실제 위치 (m) · 물체를 따라 이동하는 눈금 · 벽 없음 · 파랑: 속도 · 빨강: 일정한 힘")
+            text = f"시간 {q.time:.6f} s  |  실제 위치 x {q.x:.6f} m  |  속도 v {q.vx:.6f} m/s\n가속도 {p.applied_force/p.mass:.6f} m/s²  |  운동에너지 {q.energy:.6f} J  |  외력이 한 일 {work:.6f} J\n일-에너지 검산 ΔK−W {error:.3e} J · 화면 이동은 물리 좌표를 바꾸지 않습니다."
         else:
             anchor, mass = self._map(self.bounds[0], 0), self._map(q.x, 0)
             c.create_line(anchor[0], anchor[1] - 37, anchor[0], anchor[1] + 37, fill=t["muted"], width=5)
@@ -369,6 +414,10 @@ class EnhancedSimulator(tk.Frame):
             regime = "진동하며 감쇠" if damping < 1 - 1e-6 else "과감쇠" if damping > 1 + 1e-6 else "임계 감쇠"
             self.legend.configure(text="x: 평형 위치에서 잰 수평 변위 (m) · 용수철 모양은 이해를 돕는 표현 · 파란 화살표: 속도 방향")
             text = f"시간 {q.time:.3f} s   |   변위 {q.x:.3f} m   |   속도 {q.vx:.3f} m/s\n역학적 에너지 {q.energy:.3f} J   |   저항으로 잃은 에너지 {lost:.3f} J\n감쇠비 ζ {damping:.3f} · {regime}"
+        if self.kind != "force":
+            lossless = (self.kind == "projectile" and p.quadratic_drag == 0) or (self.kind == "pendulum" and p.angular_damping == 0) or (self.kind == "spring" and p.spring_damping == 0)
+            if lossless:
+                text += f"\n에너지 보존 검산 ΔE = {q.energy-self.initial_energy:+.3e} J"
         self.info.configure(text=text)
         self._draw_history()
 
@@ -389,6 +438,13 @@ class EnhancedSimulator(tk.Frame):
             value = lambda q: q.x
             minimum, maximum = -max(0.1, self.engine.settings.amplitude * 1.1), max(0.1, self.engine.settings.amplitude * 1.1)
             title = "시간에 따른 변위 x (m) · 최근 12초"
+        elif self.kind == "force":
+            value = lambda q: q.vx
+            speeds = [q.vx for q in data] + [self.engine.reading.vx]
+            minimum, maximum = min(0,min(speeds)), max(0,max(speeds))
+            pad = max(1, (maximum-minimum)*0.1)
+            minimum -= pad; maximum += pad
+            title = "시간에 따른 실제 속도 v (m/s) · 최근 12초"
         else:
             value = lambda q: q.energy
             minimum, maximum = 0, max(1, self.initial_energy * 1.08)

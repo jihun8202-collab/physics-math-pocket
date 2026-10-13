@@ -21,7 +21,7 @@ class FinalExpansionTests(unittest.TestCase):
     def test_100_simulators(self):
         self.assertEqual(len(SIM_TITLES),100)
         self.assertEqual(set(SIM_TITLES),set(SIM_SUBJECTS))
-        # The 3.1.6 wrapper adds three new models; every one of the original
+        # The newer wrapper adds physical models; every one of the original
         # 100 models must still be linked by the original 50,000 cards.
         linked={t.get('simulator') for t in self.terms[:50000] if t.get('simulator')}
         self.assertEqual(set(SIM_TITLES),linked)

@@ -15,8 +15,8 @@ from metadata_store import InstallMetadataStore
 
 class UpdateInfrastructure312Tests(unittest.TestCase):
     def test_version_and_build(self):
-        self.assertEqual(APP_VERSION, "3.1.6")
-        self.assertEqual(APP_BUILD, 31600)
+        self.assertEqual(APP_VERSION, "3.1.7")
+        self.assertEqual(APP_BUILD, 31700)
         self.assertEqual(APP_CHANNEL, "stable")
         self.assertIn("Copyright", APP_COPYRIGHT)
 
@@ -72,8 +72,8 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
         self.assertIn("AppId={{68D9A3E3-1F4A-4772-90A7-77D4BC2B2A56}", text)
         self.assertIn("UsePreviousAppDir=yes", text)
         self.assertIn("PhysicsMathPocket_Setup_{#MyAppVersion}_Stable_Build{#MyAppBuild}", text)
-        self.assertIn('#define MyAppVersion "3.1.6"', text)
-        self.assertIn('#define MyAppBuild "31600"', text)
+        self.assertIn('#define MyAppVersion "3.1.7"', text)
+        self.assertIn('#define MyAppBuild "31700"', text)
         self.assertIn("VersionInfoCopyright=", text)
 
     def test_app_has_update_ui(self):

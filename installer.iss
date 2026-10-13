@@ -1,9 +1,9 @@
 #define MyAppName "Physics + Math Pocket"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.1.6"
+  #define MyAppVersion "3.1.7"
 #endif
 #ifndef MyAppBuild
-  #define MyAppBuild "31600"
+  #define MyAppBuild "31700"
 #endif
 #define MyAppPublisher "Physics + Math Pocket Project"
 #define MyAppExeName "PhysicsMathPocket.exe"
@@ -37,10 +37,10 @@ ArchitecturesInstallIn64BitMode=x64compatible
 CloseApplications=yes
 RestartApplications=no
 SetupLogging=yes
-VersionInfoVersion=3.1.6.31600
+VersionInfoVersion={#MyAppVersion}.{#MyAppBuild}
 VersionInfoDescription=Physics + Math Pocket 설치/업데이트 프로그램
 VersionInfoProductName=Physics + Math Pocket
-VersionInfoProductVersion=3.1.6.31600
+VersionInfoProductVersion={#MyAppVersion}.{#MyAppBuild}
 VersionInfoCopyright={#MyAppCopyright}
 MinVersion=10.0.17763
 

@@ -15,7 +15,7 @@ class UpdateTransactionTests(unittest.TestCase):
         entries = [{'path': name, 'sha256': hashlib.sha256(data).hexdigest(), 'size': len(data)}
                    for name, data in files.items()]
         with zipfile.ZipFile(package, 'w') as archive:
-            archive.writestr('update-manifest.json', json.dumps({'version': '3.1.6', 'build': 31600, 'files': entries}))
+            archive.writestr('update-manifest.json', json.dumps({'version': '3.1.7', 'build': 31700, 'files': entries}))
             for name, data in files.items():
                 archive.writestr('payload/' + name, data + (b'corrupt' if corrupt else b''))
         return package
@@ -74,7 +74,7 @@ class UpdateTransactionTests(unittest.TestCase):
                 (user / name).write_bytes(data)
             before = {p.name: p.read_bytes() for p in user.iterdir()}
             package = self.make_package(root, {'PhysicsMathPocket.exe': b'new'})
-            self.assertEqual(update_agent.apply_update(package, install), ('3.1.6', 31600))
+            self.assertEqual(update_agent.apply_update(package, install), ('3.1.7', 31700))
             self.assertEqual({p.name: p.read_bytes() for p in user.iterdir()}, before)
 
 

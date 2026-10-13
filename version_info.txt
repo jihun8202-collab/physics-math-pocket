@@ -1,15 +1,15 @@
 VSVersionInfo(
-  ffi=FixedFileInfo(filevers=(3, 1, 6, 31600), prodvers=(3, 1, 6, 31600), mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),
+  ffi=FixedFileInfo(filevers=(3, 1, 7, 31700), prodvers=(3, 1, 7, 31700), mask=0x3f, flags=0x0, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),
   kids=[
     StringFileInfo([StringTable(u'041204B0',[
       StringStruct(u'CompanyName',u'Physics + Math Pocket Project'),
       StringStruct(u'FileDescription',u'오프라인 수학·과학 전자사전과 개념 시뮬레이터'),
-      StringStruct(u'FileVersion',u'3.1.6.31600'),
+      StringStruct(u'FileVersion',u'3.1.7.31700'),
       StringStruct(u'InternalName',u'PhysicsMathPocket'),
       StringStruct(u'LegalCopyright',u'Copyright © 2026 Physics + Math Pocket Project'),
       StringStruct(u'OriginalFilename',u'PhysicsMathPocket.exe'),
       StringStruct(u'ProductName',u'Physics + Math Pocket'),
-      StringStruct(u'ProductVersion',u'3.1.6')
+      StringStruct(u'ProductVersion',u'3.1.7')
     ])]),
     VarFileInfo([VarStruct(u'Translation',[0x0412,1200])])
   ]

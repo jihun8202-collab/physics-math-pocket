@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import math
+import time
 import tkinter as tk
 from tkinter import ttk
 from typing import Callable, Dict, Optional
+from physics_engine import FIXED_DT, constant_force_motion
 
 SIM_TITLES = {
     "newton2": "힘·질량·가속도",
@@ -166,22 +168,23 @@ class MiniSimulator(tk.Frame):
         self.fps = 60 if fps >= 60 else 30
         self.running = False
         self.t = 0.0
+        self._steps = 0
+        self._accumulator = 0.0
+        self._last_clock = 0.0
+        self._building = True
         self._job: Optional[str] = None
         self._vars: Dict[str, tk.DoubleVar] = {}
         self._build()
+        self._building = False
 
     def destroy(self) -> None:
-        if self._job:
-            try:
-                self.after_cancel(self._job)
-            except Exception:
-                pass
+        self.stop()
         super().destroy()
 
     def _v(self, name: str, value: float) -> tk.DoubleVar:
         var = tk.DoubleVar(value=value)
         self._vars[name] = var
-        var.trace_add("write", lambda *_: self.redraw())
+        var.trace_add("write", lambda *_: self._parameter_changed())
         return var
 
     def _slider(self, master: tk.Misc, label: str, name: str, lo: float, hi: float, value: float, digits: int = 2) -> None:
@@ -206,6 +209,7 @@ class MiniSimulator(tk.Frame):
         tk.Label(head, text="값을 움직여 바로 확인", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", 8)).pack(side="left", padx=10)
         self.play_btn = tk.Button(head, text="▶ 재생", command=self.toggle, relief="flat", bd=0, bg=t["accent_soft"], fg=t["accent2"], activebackground=t["accent_soft"], font=("Malgun Gothic", 9, "bold"), padx=10, pady=5, cursor="hand2")
         self.play_btn.pack(side="right")
+        tk.Button(head, text="초기화", command=self.reset, relief="flat", bg=t["surface2"], fg=t["text"]).pack(side="right", padx=6)
 
         body = tk.Frame(self, bg=t["surface"])
         body.pack(fill="x")
@@ -233,17 +237,77 @@ class MiniSimulator(tk.Frame):
         self.redraw()
 
     def toggle(self) -> None:
-        self.running = not self.running
-        self.play_btn.configure(text="❚❚ 정지" if self.running else "▶ 재생")
+        self.stop() if self.running else self.start()
+
+    def start(self) -> None:
         if self.running:
-            self._tick()
+            return
+        self.running = True
+        self._last_clock = time.perf_counter()
+        self.play_btn.configure(text="❚❚ 일시정지")
+        self._job = self.after(max(1, round(1000 / self.fps)), self._tick)
+
+    def stop(self) -> None:
+        self.running = False
+        if self._job is not None:
+            try:
+                self.after_cancel(self._job)
+            except tk.TclError:
+                pass
+            self._job = None
+        if hasattr(self, "play_btn"):
+            self.play_btn.configure(text="▶ 재생")
+
+    def reset(self) -> None:
+        self.stop()
+        self.t = 0.0
+        self._steps = 0
+        self._accumulator = 0.0
+        self.redraw()
+
+    def _parameter_changed(self) -> None:
+        if self._building:
+            return
+        # A changed initial condition begins a new experiment explicitly.
+        self.reset()
+
+    def step_once(self) -> None:
+        self.stop()
+        self._advance(FIXED_DT)
+        self.redraw()
+
+    def _advance(self, elapsed: float) -> None:
+        self._accumulator += max(0.0, elapsed)
+        count = int((self._accumulator + 1e-12) / FIXED_DT)
+        self._accumulator -= count * FIXED_DT
+        self._steps += count
+        self.t = self._steps * FIXED_DT
+        if self.sim_id in GENERIC_SIM_SPECS:
+            spec = GENERIC_SIM_SPECS[self.sim_id]
+            duration = float(spec["xmax"])-float(spec["xmin"]) if self._time_axis() else 6.0
+            if self.t >= duration:
+                self.t = duration
+                self.stop()
+        elif self.sim_id == "projectile":
+            duration = 2*self._vars["v"].get()*math.sin(math.radians(self._vars["ang"].get()))/self._vars["g"].get()
+            if self.t >= duration:
+                self.t = duration
+                self.stop()
 
     def _tick(self) -> None:
+        self._job = None
         if not self.running or not self.winfo_exists():
             return
-        self.t += 1.0 / self.fps
+        now = time.perf_counter()
+        elapsed = now-self._last_clock
+        self._last_clock = now
+        if elapsed > 2.0:
+            self.stop()
+            return
+        self._advance(elapsed)
         self.redraw()
-        self._job = self.after(max(10, int(1000 / self.fps)), self._tick)
+        if self.running:
+            self._job = self.after(max(1, round(1000 / self.fps)), self._tick)
 
     def _setup_newton(self):
         self._slider(self.controls,"힘 F (N)","F",-20,20,8)
@@ -334,12 +398,8 @@ class MiniSimulator(tk.Frame):
         spec = GENERIC_SIM_SPECS[self.sim_id]
         c, t = self.canvas, self.theme
         xmin, xmax = float(spec["xmin"]), float(spec["xmax"])
-        values = []
-        for i in range(161):
-            x = xmin + (xmax-xmin)*i/160
-            y = self._generic_eval(x)
-            if math.isfinite(y) and abs(y) < 1e12:
-                values.append((x,y))
+        plot_segments = self._plot_segments()
+        values = [point for segment in plot_segments for point in segment]
         if not values:
             c.create_text(300,135,text="현재 값에서는 그래프를 표시할 수 없습니다.",fill=t["muted"],font=("Malgun Gothic",10))
             self.info.configure(text=spec["formula"])
@@ -353,23 +413,53 @@ class MiniSimulator(tk.Frame):
             zy=bottom-(0-ymin)/(ymax-ymin)*(bottom-top); c.create_line(left,zy,right,zy,fill=t["line"])
         if xmin <= 0 <= xmax:
             zx=left+(0-xmin)/(xmax-xmin)*(right-left); c.create_line(zx,top,zx,bottom,fill=t["line"])
-        segments=[]; last_px=None
-        for x,y in values:
-            px=left+(x-xmin)/(xmax-xmin)*(right-left); py=bottom-(y-ymin)/(ymax-ymin)*(bottom-top)
-            if last_px is not None and abs(px-last_px)>30 and len(segments)>=4:
-                c.create_line(*segments,fill=t["accent"],width=3,smooth=True); segments=[]
-            segments.extend([px,py]); last_px=px
-        if len(segments)>=4: c.create_line(*segments,fill=t["accent"],width=3,smooth=True)
-        # Animated probe point scans the independent-variable range.
-        frac=(0.5+0.5*math.sin(self.t*0.7)) if self.running else 0.55
-        xp=xmin+(xmax-xmin)*frac; yp=self._generic_eval(xp)
+        for segment in plot_segments:
+            points=[]
+            for x,y in segment:
+                points.extend([left+(x-xmin)/(xmax-xmin)*(right-left),bottom-(y-ymin)/(ymax-ymin)*(bottom-top)])
+            if len(points)>=4:
+                c.create_line(*points,fill=t["accent"],width=3,smooth=False)
+        xp=self._probe_x(); yp=self._generic_eval(xp)
         if math.isfinite(yp) and ymin <= yp <= ymax:
             px=left+(xp-xmin)/(xmax-xmin)*(right-left); py=bottom-(yp-ymin)/(ymax-ymin)*(bottom-top)
             c.create_oval(px-5,py-5,px+5,py+5,fill=t["blue"],outline="")
         c.create_text((left+right)/2,250,text=spec["x_label"],fill=t["muted"],font=("Malgun Gothic",8))
         c.create_text(16,(top+bottom)/2,text=spec["y_label"],fill=t["muted"],font=("Malgun Gothic",8),angle=90)
         params=" · ".join(f"{k}={v.get():.3g}" for k,v in self._vars.items())
-        self.info.configure(text=spec["formula"] + (" · " + params if params else ""))
+        model = "시간은 순방향으로 진행" if self._time_axis() else "관계식 탐색 · 점은 입력값을 읽는 표시"
+        self.info.configure(text=spec["formula"] + (" · " + params if params else "") + f"\n{model} · {spec['x_label']}={xp:.6g}, {spec['y_label']}={yp:.6g}")
+
+    def _time_axis(self) -> bool:
+        return GENERIC_SIM_SPECS[self.sim_id]["x_label"] in {"t", "시간", "t/T½"}
+
+    def _probe_x(self) -> float:
+        spec = GENERIC_SIM_SPECS[self.sim_id]
+        lo, hi = float(spec["xmin"]), float(spec["xmax"])
+        return min(hi, lo+self.t) if self._time_axis() else lo+(hi-lo)*min(1.0,self.t/6.0)
+
+    def _plot_segments(self):
+        """Preserve undefined samples and never connect across a known pole."""
+        spec = GENERIC_SIM_SPECS[self.sim_id]
+        lo, hi = float(spec["xmin"]), float(spec["xmax"])
+        pole = (self._vars["f"].get() if self.sim_id == "thin_lens" else
+                self._vars["h"].get() if self.sim_id == "rational_function" else
+                0.0 if self.sim_id == "newton_method" else None)
+        segments, current, previous = [], [], None
+        for i in range(321):
+            x = lo+(hi-lo)*i/320
+            y = self._generic_eval(x)
+            crossed = pole is not None and previous is not None and previous <= pole <= x
+            valid = math.isfinite(y) and abs(y) < 1e12 and (pole is None or not math.isclose(x,pole,abs_tol=1e-12))
+            if crossed or not valid:
+                if current:
+                    segments.append(current)
+                current = []
+            if valid:
+                current.append((x,y))
+            previous = x
+        if current:
+            segments.append(current)
+        return segments
 
     def _xy(self, x: float, y: float, sx: float = 45, sy: float = 30, cx: float = 300, cy: float = 135):
         return cx + x*sx, cy - y*sy
@@ -395,11 +485,17 @@ class MiniSimulator(tk.Frame):
 
     def _draw_newton2(self):
         c=self.canvas; t=self.theme; F=self._vars['F'].get(); m=max(.1,self._vars['m'].get()); a=F/m
-        x=300 + 140*math.sin(self.t*.8)*max(-1,min(1,a/10)) if self.running else 300
+        world_x, velocity = constant_force_motion(F,m,self.t)
+        viewport = math.floor(world_x/8.0)*8.0
+        x=90+(world_x-viewport)*55
+        for i in range(9):
+            px=90+i*55
+            c.create_text(px,225,text=f"{viewport+i:g} m",fill=t['muted'],font=('Consolas',8))
         c.create_line(30,205,570,205,fill=t['muted'],width=2); c.create_rectangle(x-45,160,x+45,205,fill=t['accent_soft'],outline=t['accent'],width=2)
         c.create_text(x,182,text=f"m={m:.1f} kg",fill=t['text'],font=('Consolas',10,'bold'))
-        end=x+max(-120,min(120,F*6)); c.create_line(x,145,end,145,arrow='last',fill=t['blue'],width=4)
-        self.info.configure(text=f"F = ma  →  a = {a:.3f} m/s²")
+        if F:
+            end=x+max(-120,min(120,F*6)); c.create_line(x,145,end,145,arrow='last',fill=t['blue'],width=4)
+        self.info.configure(text=f"F = ma · a = {a:.6f} m/s² · t={self.t:.6f} s\nx={world_x:.6f} m · v={velocity:.6f} m/s · 화면이 이동해도 실제 좌표는 유지")
     def _draw_projectile(self):
         c=self.canvas; t=self.theme; v=self._vars['v'].get(); ang=math.radians(self._vars['ang'].get()); g=self._vars['g'].get()
         vx=v*math.cos(ang); vy=v*math.sin(ang); T=max(.01,2*vy/g); R=vx*T; H=vy*vy/(2*g)
@@ -409,11 +505,10 @@ class MiniSimulator(tk.Frame):
             tt=T*i/100; x=vx*tt; y=max(0,vy*tt-.5*g*tt*tt); pts.extend([35+x*scale,230-y*scale])
         c.create_line(25,230,570,230,fill=t['muted']);
         if len(pts)>=4: c.create_line(*pts,fill=t['accent'],width=3,smooth=True)
-        if self.running:
-            tt=(self.t%max(T,.1)); x=vx*tt; y=max(0,vy*tt-.5*g*tt*tt); c.create_oval(29+x*scale,224-y*scale,41+x*scale,236-y*scale,fill=t['blue'],outline='')
+        tt=min(self.t,T); x=vx*tt; y=max(0,vy*tt-.5*g*tt*tt); c.create_oval(29+x*scale,224-y*scale,41+x*scale,236-y*scale,fill=t['blue'],outline='')
         self.info.configure(text=f"비행시간 {T:.2f} s · 사거리 {R:.2f} m · 최고높이 {H:.2f} m")
     def _draw_spring(self):
-        c=self.canvas; t=self.theme; k=self._vars['k'].get(); m=self._vars['m'].get(); A=self._vars['A'].get(); w=math.sqrt(k/m); x=A*math.cos(w*self.t) if self.running else A
+        c=self.canvas; t=self.theme; k=self._vars['k'].get(); m=self._vars['m'].get(); A=self._vars['A'].get(); w=math.sqrt(k/m); x=A*math.cos(w*self.t)
         center=300; px=center+x*75
         c.create_line(40,135,90,135,fill=t['muted'],width=6)
         points=[90,135]
@@ -423,7 +518,7 @@ class MiniSimulator(tk.Frame):
         points.extend([px-40,135]); c.create_line(*points,fill=t['accent'],width=2); c.create_rectangle(px-40,105,px+40,165,fill=t['accent_soft'],outline=t['accent'])
         self.info.configure(text=f"ω=√(k/m)={w:.3f} rad/s · T={2*math.pi/w:.3f} s · x={x:.3f}")
     def _draw_wave(self):
-        c=self.canvas; t=self.theme; A=self._vars['A'].get(); k=self._vars['k'].get(); f=self._vars['f'].get(); phase=2*math.pi*f*self.t if self.running else 0
+        c=self.canvas; t=self.theme; A=self._vars['A'].get(); k=self._vars['k'].get(); f=self._vars['f'].get(); phase=2*math.pi*f*self.t
         pts=[]
         for px in range(20,581,3):
             x=(px-20)/560*4*math.pi; y=135-A*math.sin(k*x-phase); pts.extend([px,y])
@@ -443,10 +538,13 @@ class MiniSimulator(tk.Frame):
         x1,x2=210,390
         for x,q in [(x1,q1),(x2,q2)]:
             fill=t['blue'] if q>=0 else t['danger']; c.create_oval(x-28,107,x+28,163,fill=fill,outline=''); c.create_text(x,135,text=('+' if q>=0 else '−')+f"{abs(q):.1f}",fill='white',font=('Segoe UI',11,'bold'))
-        direction='attraction' if q1*q2<0 else 'repulsion'
-        if direction=='attraction': c.create_line(x1+35,135,x2-35,135,arrow='both',fill=t['accent'],width=3)
-        else: c.create_line(x1-10,135,110,135,arrow='last',fill=t['accent'],width=3); c.create_line(x2+10,135,490,135,arrow='last',fill=t['accent'],width=3)
-        self.info.configure(text=f"F = k q₁q₂/r² = {F:.4g} N · {'인력' if F<0 else '척력'}")
+        if F<0:
+            c.create_line(x1,180,x1+70,180,arrow='last',fill=t['accent'],width=3)
+            c.create_line(x2,180,x2-70,180,arrow='last',fill=t['accent'],width=3)
+        elif F>0:
+            c.create_line(x1,180,x1-70,180,arrow='last',fill=t['accent'],width=3)
+            c.create_line(x2,180,x2+70,180,arrow='last',fill=t['accent'],width=3)
+        self.info.configure(text=f"F = k q₁q₂/r² = {F:.4g} N · {'인력' if F<0 else '척력' if F>0 else '힘 0'} · 화살표는 각 전하에 작용하는 힘")
     def _draw_energy(self):
         c=self.canvas; t=self.theme; m=self._vars['m'].get(); h=self._vars['h'].get(); v=self._vars['v'].get(); pe=m*9.80665*h; ke=.5*m*v*v; total=pe+ke; scale=180/max(total,1)
         c.create_text(95,230,text='위치E',fill=t['muted']); c.create_rectangle(60,220-pe*scale,130,220,fill=t['blue'],outline='')
@@ -464,7 +562,7 @@ class MiniSimulator(tk.Frame):
             x=i/10; y=a*x*x+b*x+cc; px,py=self._xy(x,y); pts.extend([px,py])
         c.create_line(*pts,fill=t['accent'],width=3,smooth=True); xv=-b/(2*a) if abs(a)>.03 else float('nan'); self.info.configure(text=f"y={a:.2f}x²+{b:.2f}x+{cc:.2f} · 꼭짓점 x≈{xv:.3g}")
     def _draw_unit_circle(self):
-        c=self.canvas; t=self.theme; ang=(self._vars['ang'].get()+ (self.t*45 if self.running else 0))%360; th=math.radians(ang); cx,cy,R=300,135,95; x=cx+R*math.cos(th); y=cy-R*math.sin(th)
+        c=self.canvas; t=self.theme; ang=(self._vars['ang'].get()+self.t*45)%360; th=math.radians(ang); cx,cy,R=300,135,95; x=cx+R*math.cos(th); y=cy-R*math.sin(th)
         c.create_oval(cx-R,cy-R,cx+R,cy+R,outline=t['muted'],width=2); c.create_line(cx-R-20,cy,cx+R+20,cy,fill=t['line']); c.create_line(cx,cy-R-20,cx,cy+R+20,fill=t['line']); c.create_line(cx,cy,x,y,fill=t['accent'],width=3); c.create_line(x,cy,x,y,fill=t['blue'],dash=(4,3)); c.create_oval(x-6,y-6,x+6,y+6,fill=t['accent'],outline='')
         self.info.configure(text=f"θ={ang:.1f}° · cosθ={math.cos(th):.4f} · sinθ={math.sin(th):.4f}")
     def _arrow(self,x1,y1,x2,y2,color): self.canvas.create_line(x1,y1,x2,y2,arrow='last',fill=color,width=3)

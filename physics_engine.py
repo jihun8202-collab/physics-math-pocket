@@ -10,7 +10,15 @@ import math
 from typing import Tuple
 
 FIXED_DT = 1.0 / 240.0
-KINDS = ("projectile", "pendulum", "spring")
+KINDS = ("projectile", "pendulum", "spring", "force")
+
+
+def constant_force_motion(force: float, mass: float, time: float, x0: float = 0, v0: float = 0) -> Tuple[float, float]:
+    """Analytic constant-force motion in metres and seconds, without fake boundaries."""
+    if not all(math.isfinite(v) for v in (force, mass, time, x0, v0)) or mass <= 0 or time < 0:
+        raise ValueError("Finite values, positive mass and nonnegative time required")
+    acceleration = force / mass
+    return x0 + v0 * time + 0.5 * acceleration * time * time, v0 + acceleration * time
 
 
 @dataclass(frozen=True)
@@ -29,6 +37,8 @@ class Settings:
     stiffness: float = 20.0
     spring_damping: float = 0.6  # N s/m
     amplitude: float = 0.6
+    applied_force: float = 8.0
+    initial_velocity: float = 0.0
 
     def validate(self) -> None:
         if self.kind not in KINDS:
@@ -39,6 +49,7 @@ class Settings:
             "quadratic_drag": (0, 0.05), "length": (0.2, 5),
             "angular_damping": (0, 2), "stiffness": (1, 100),
             "spring_damping": (0, 5), "amplitude": (0, 2),
+            "applied_force": (-50, 50), "initial_velocity": (-60, 60),
         }
         for name, (minimum, maximum) in ranges.items():
             value = getattr(self, name)
@@ -72,6 +83,8 @@ class PhysicsEngine:
             self._state = (0.0, settings.initial_height, settings.launch_speed * math.cos(angle), settings.launch_speed * math.sin(angle))
         elif settings.kind == "pendulum":
             self._state = (angle, 0.0, 0.0, 0.0)
+        elif settings.kind == "force":
+            self._state = (0.0, 0.0, settings.initial_velocity, 0.0)
         else:
             self._state = (settings.amplitude, 0.0, 0.0, 0.0)
         self._steps = 0
@@ -90,6 +103,13 @@ class PhysicsEngine:
 
     def step(self) -> Reading:
         if self._landed:
+            return self.reading
+        if self.settings.kind == "force":
+            self._steps += 1
+            self._time = self._steps * FIXED_DT
+            x, v = constant_force_motion(self.settings.applied_force, self.settings.mass, self._time, v0=self.settings.initial_velocity)
+            self._state = (x, 0.0, v, 0.0)
+            self.reading = self._read()
             return self.reading
         next_state = self._integrate(self._state, FIXED_DT)
         if self.settings.kind == "projectile" and next_state[1] < 0:
@@ -120,6 +140,8 @@ class PhysicsEngine:
             return (q[2], q[3], -drag * q[2], -p.gravity - drag * q[3])
         if p.kind == "pendulum":
             return (q[1], -p.gravity / p.length * math.sin(q[0]) - p.angular_damping * q[1], 0.0, 0.0)
+        if p.kind == "force":
+            return (q[2], 0.0, p.applied_force / p.mass, 0.0)
         return (q[1], (-p.stiffness * q[0] - p.spring_damping * q[1]) / p.mass, 0.0, 0.0)
 
     def _integrate(self, q: Tuple[float, ...], dt: float) -> Tuple[float, ...]:
@@ -141,4 +163,6 @@ class PhysicsEngine:
             energy = 0.5 * p.mass * p.length ** 2 * omega ** 2 + p.mass * p.gravity * p.length * (1 - math.cos(theta))
             return Reading(self._time, p.length * math.sin(theta), -p.length * math.cos(theta),
                            p.length * omega * math.cos(theta), p.length * omega * math.sin(theta), theta, omega, energy)
+        if p.kind == "force":
+            return Reading(self._time, q[0], 0, q[2], 0, 0, 0, 0.5 * p.mass * q[2] ** 2)
         return Reading(self._time, q[0], 0, q[1], 0, 0, 0, 0.5 * p.mass * q[1] ** 2 + 0.5 * p.stiffness * q[0] ** 2)

@@ -43,6 +43,8 @@ class EnhancedSimulationLifecycleTests(unittest.TestCase):
 
     def test_enhanced_models_render_and_reset_at_both_layout_widths(self):
         for sid in ENHANCED_TITLES:
+            if sid == "enhanced_collision":
+                continue  # Multi-body collision widgets have their own engine/lifecycle tests.
             with self.subTest(sid=sid):
                 widget = build_simulator(self.window, {"simulator": sid}, THEME, fps=60)
                 self.assertIsInstance(widget, EnhancedSimulator)
@@ -104,10 +106,23 @@ class EnhancedSimulationLifecycleTests(unittest.TestCase):
 
     def test_every_legacy_registry_entry_remains_available(self):
         self.assertEqual(len(SIM_TITLES), 100)
+        upgraded = {"newton2": "enhanced_force", "projectile": "enhanced_projectile",
+                    "spring": "enhanced_spring", "elastic_collision": "enhanced_collision"}
         for sid in SIM_TITLES:
-            self.assertEqual(simulator_for_term({"simulator": sid}), sid)
+            self.assertEqual(simulator_for_term({"simulator": sid}), upgraded.get(sid, sid))
         widget = build_simulator(self.window, {"simulator": "projectile"}, THEME)
-        self.assertIsInstance(widget, MiniSimulator)
+        self.window.update()
+        self.assertIsInstance(widget, EnhancedSimulator)
+        self.assertEqual(widget.engine.settings.quadratic_drag, 0)
+        widget.destroy()
+        for sid, model in (("newton2", "force"), ("spring", "spring")):
+            widget = build_simulator(self.window, {"simulator": sid}, THEME)
+            self.window.update()
+            self.assertIsInstance(widget, EnhancedSimulator)
+            self.assertEqual(widget.engine.settings.kind, model)
+            if sid == "spring":
+                self.assertEqual(widget.engine.settings.spring_damping, 0)
+            widget.destroy()
         self.assertIsNone(build_simulator(self.window, {"simulator": "unknown"}, THEME))
 
 
