@@ -43,7 +43,7 @@ class UpdateLab313Tests(unittest.TestCase):
 
     def test_beta_identity(self):
         self.assertEqual(APP_VERSION, "3.2.0")
-        self.assertEqual(APP_BUILD, 32001)
+        self.assertEqual(APP_BUILD, 32002)
         self.assertEqual(APP_CHANNEL, "stable")
 
     def test_default_build_mapping(self):
@@ -53,7 +53,7 @@ class UpdateLab313Tests(unittest.TestCase):
     def test_local_setup_filename_is_detected(self):
         with tempfile.TemporaryDirectory() as td:
             folder = Path(td)
-            setup = folder / "PhysicsMathPocket_Setup_3.1.9_Beta_Build31901.exe"
+            setup = folder / "PhysicsMathPocket_Setup_3.2.1_Beta_Build32100.exe"
             setup.write_bytes(b"test-installer")
             result = check_for_updates(
                 APP_VERSION,
@@ -65,8 +65,8 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(result.status, "update_available")
             self.assertEqual(result.source, "local")
             self.assertIsNotNone(result.release)
-            self.assertEqual(result.release.version, "3.1.9")
-            self.assertEqual(result.release.build, 31901)
+            self.assertEqual(result.release.version, "3.2.1")
+            self.assertEqual(result.release.build, 32100)
             self.assertTrue(result.release.is_beta)
             self.assertEqual(result.release.sha256, sha256_file(setup))
 
@@ -89,10 +89,10 @@ class UpdateLab313Tests(unittest.TestCase):
             setup = folder / "next.exe"
             setup.write_bytes(b"next-version")
             manifest = {
-                "version": "3.1.9",
-                "build": 31901,
+                "version": "3.2.1",
+                "build": 32100,
                 "channel": "stable",
-                "name": "3.1.9 Stable",
+                "name": "3.2.1 Stable",
                 "file": "next.exe",
                 "sha256": sha256_file(setup),
             }
@@ -141,5 +141,7 @@ class UpdateLab313Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
 
 

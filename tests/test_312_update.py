@@ -16,20 +16,20 @@ from metadata_store import InstallMetadataStore
 class UpdateInfrastructure312Tests(unittest.TestCase):
     def test_version_and_build(self):
         self.assertEqual(APP_VERSION, "3.2.0")
-        self.assertEqual(APP_BUILD, 32001)
+        self.assertEqual(APP_BUILD, 32002)
         self.assertEqual(APP_CHANNEL, "stable")
         self.assertIn("Copyright", APP_COPYRIGHT)
 
     def test_beta_version_comparison(self):
         self.assertLess(parse_version("3.2.0-beta.1"), parse_version("3.2.0"))
-        release = ReleaseInfo("3.2.0", 32001, "beta", "3.2 Beta 1")
+        release = ReleaseInfo("3.2.1", 32100, "beta", "3.2.1 Beta 1")
         self.assertTrue(release_is_newer(release, APP_VERSION, APP_BUILD))
 
     def test_local_manifest_beta_channel(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "latest.json"
             path.write_text(json.dumps({"releases": [
-                {"version": "3.2.0", "build": 32001, "channel": "beta", "name": "3.2 Beta 1"},
+                {"version": "3.2.1", "build": 32100, "channel": "beta", "name": "3.2.1 Beta 1"},
                 {"version": "3.1.2", "build": 31200, "channel": "stable", "name": "3.1.2"},
             ]}), encoding="utf-8")
             result = check_for_updates(APP_VERSION, APP_BUILD, channel="beta", manifest_url=path.as_uri())
@@ -41,7 +41,7 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "latest.json"
             path.write_text(json.dumps({"releases": [
-                {"version": "3.2.0", "build": 32001, "channel": "beta", "name": "3.2 Beta 1"},
+                {"version": "3.2.1", "build": 32100, "channel": "beta", "name": "3.2.1 Beta 1"},
                 {"version": "3.1.2", "build": 31200, "channel": "stable", "name": "3.1.2"},
             ]}), encoding="utf-8")
             result = check_for_updates(APP_VERSION, APP_BUILD, channel="stable", manifest_url=path.as_uri())
@@ -84,5 +84,7 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
 
 
