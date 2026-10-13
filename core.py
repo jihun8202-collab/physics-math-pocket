@@ -12,9 +12,9 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 APP_NAME = "PhysicsMathPocket"
-APP_VERSION = "3.1.8"
-APP_BUILD = 31802
-APP_CHANNEL = "beta"
+APP_VERSION = "3.2.0"
+APP_BUILD = 32000
+APP_CHANNEL = "stable"
 APP_COPYRIGHT = "Copyright © 2026 Physics + Math Pocket Project"
 
 
