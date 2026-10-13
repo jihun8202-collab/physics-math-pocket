@@ -7,6 +7,9 @@ from typing import Any, Dict
 from core import user_data_dir
 
 DEFAULT_SETTINGS: Dict[str, Any] = {
+    # Public release feed for the shipped 3.1.7 app.  Users can override this
+    # in Settings for a fork or an internal test feed.
+    "update_repository": "jihun8202-collab/physics-math-pocket",
     "theme": "system",
     "font_scale": 1.0,
     "density": "comfortable",
@@ -18,9 +21,8 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "confirm_external_links": False,
     "check_updates_on_startup": True,
     "update_channel": "stable",
-    "update_repository": "",
     "update_manifest_url": "",
-    "update_source_mode": "auto",
+    "update_source_mode": "github",
     "update_local_dir": "",
     "prefer_seamless_update": True,
 }

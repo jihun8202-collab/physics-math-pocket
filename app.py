@@ -1722,10 +1722,10 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         self.update_check_running = True
         self._refresh_update_indicator()
         channel = self.settings.get("update_channel", "stable")
-        repository = self.settings.get("update_repository", "")
+        repository = self.settings.get("update_repository") or DEFAULT_SETTINGS["update_repository"]
         manifest_url = self.settings.get("update_manifest_url", "")
         local_dir = self.settings.get("update_local_dir", "")
-        source_mode = self.settings.get("update_source_mode", "auto")
+        source_mode = self.settings.get("update_source_mode") or DEFAULT_SETTINGS["update_source_mode"]
 
         def worker() -> None:
             result = check_for_updates(
@@ -2052,9 +2052,9 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         confirm_links_var=tk.BooleanVar(value=bool(self.settings.get("confirm_external_links",False)))
         update_startup_var=tk.BooleanVar(value=bool(self.settings.get("check_updates_on_startup",True)))
         update_channel_var=tk.StringVar(value=self.settings.get("update_channel","stable"))
-        update_repo_var=tk.StringVar(value=self.settings.get("update_repository",""))
+        update_repo_var=tk.StringVar(value=self.settings.get("update_repository") or DEFAULT_SETTINGS["update_repository"])
         update_manifest_var=tk.StringVar(value=self.settings.get("update_manifest_url",""))
-        update_source_var=tk.StringVar(value=self.settings.get("update_source_mode","auto"))
+        update_source_var=tk.StringVar(value=self.settings.get("update_source_mode") or DEFAULT_SETTINGS["update_source_mode"])
         update_local_var=tk.StringVar(value=self.settings.get("update_local_dir","") or str(default_local_update_dir()))
 
         def section(title: str):
@@ -2094,8 +2094,8 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         tk.Label(c,text="beta 채널은 정식판과 베타판을 모두 확인합니다. 베타판은 설치 전에 별도 확인창을 표시합니다.",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8),wraplength=530,justify="left").pack(anchor="w",pady=(2,8))
         row=tk.Frame(c,bg=t["surface"]); row.pack(fill="x",pady=(2,6))
         tk.Label(row,text="업데이트 소스",bg=t["surface"],fg=t["muted"]).pack(side="left")
-        ttk.Combobox(row,textvariable=update_source_var,values=["auto","local","github","manifest"],state="readonly",width=12).pack(side="right")
-        tk.Label(c,text="auto: 로컬 폴더 → manifest → GitHub 순으로 확인 · local: 배포 전 기능 시험용",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8),wraplength=530,justify="left").pack(anchor="w",pady=(0,8))
+        ttk.Combobox(row,textvariable=update_source_var,values=["github","auto","local","manifest"],state="readonly",width=12).pack(side="right")
+        tk.Label(c,text="github: 공개 GitHub Releases를 바로 확인 · auto: 로컬 폴더 → manifest → GitHub · local: 배포 전 기능 시험용",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8),wraplength=530,justify="left").pack(anchor="w",pady=(0,8))
         tk.Label(c,text="로컬 업데이트 폴더",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8)).pack(anchor="w")
         local_row=tk.Frame(c,bg=t["surface"]); local_row.pack(fill="x",pady=(3,6))
         local_entry=tk.Entry(local_row,textvariable=update_local_var,bg=t["surface2"],fg=t["text"],insertbackground=t["text"],relief="flat",font=("Consolas",9))
@@ -2104,7 +2104,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
             chosen=filedialog.askdirectory(parent=win,title="로컬 업데이트 폴더 선택",initialdir=update_local_var.get() or str(default_local_update_dir()))
             if chosen: update_local_var.set(chosen)
         self._button(local_row,"찾기",browse_update_folder,kind="ghost",padx=10,pady=7).pack(side="left",padx=(6,0))
-        tk.Label(c,text="GitHub Releases 저장소 (선택)",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8)).pack(anchor="w")
+        tk.Label(c,text="GitHub Releases 저장소",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8)).pack(anchor="w")
         repo_entry=tk.Entry(c,textvariable=update_repo_var,bg=t["surface2"],fg=t["text"],insertbackground=t["text"],relief="flat",font=("Consolas",9))
         repo_entry.pack(fill="x",ipady=7,pady=(3,6))
         tk.Label(c,text="예: owner/repository · 공개 저장소면 별도 업데이트 웹사이트 없이 GitHub Releases를 업데이트 피드로 사용할 수 있습니다.",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",8),wraplength=530,justify="left").pack(anchor="w")
