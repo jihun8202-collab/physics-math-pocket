@@ -50,5 +50,11 @@ jobs:
           $assets = @(Get-ChildItem -LiteralPath release -File | ForEach-Object { $_.FullName })
           $flags = @()
           if ($env:RELEASE_TAG -match '_Beta_') { $flags += '--prerelease' }
-          gh release create $env:RELEASE_TAG @assets @flags --verify-tag --title "Physics + Math Pocket $env:RELEASE_TAG" --notes-file RELEASE_NOTES.md
+          gh release view $env:RELEASE_TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG @assets --clobber
+          } else {
+            gh release create $env:RELEASE_TAG @assets @flags --verify-tag --title "Physics + Math Pocket $env:RELEASE_TAG" --notes-file RELEASE_NOTES.md
+          }
           if ($LASTEXITCODE -ne 0) { throw 'Release creation failed.' }
+
