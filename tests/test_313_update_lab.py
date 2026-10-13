@@ -42,9 +42,9 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(loaded["update_repository"], "jihun8202-collab/physics-math-pocket")
 
     def test_beta_identity(self):
-        self.assertEqual(APP_VERSION, "3.1.8")
-        self.assertEqual(APP_BUILD, 31801)
-        self.assertEqual(APP_CHANNEL, "beta")
+        self.assertEqual(APP_VERSION, "3.2.0")
+        self.assertEqual(APP_BUILD, 32001)
+        self.assertEqual(APP_CHANNEL, "stable")
 
     def test_default_build_mapping(self):
         self.assertEqual(default_build_for_version("3.1.5"), 31500)
@@ -141,3 +141,5 @@ class UpdateLab313Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
