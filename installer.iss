@@ -57,8 +57,8 @@ Source: "SOURCES.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DESIGN_NOTES.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{autoprograms}\Physics + Math Pocket"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
-Name: "{autodesktop}\Physics + Math Pocket"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\Physics + Math Pocket"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"
+Name: "{autodesktop}\Physics + Math Pocket"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Physics + Math Pocket 실행"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent
