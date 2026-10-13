@@ -67,11 +67,18 @@ class SettingsStore:
             old_revision = int(incoming.get("update_defaults_revision", 0) or 0)
         except (TypeError, ValueError):
             old_revision = 0
+        migrated = False
         if old_revision < 2 and not data["update_repository"]:
             data["update_repository"] = DEFAULT_SETTINGS["update_repository"]
             if data.get("update_source_mode") in ("auto", "local"):
                 data["update_source_mode"] = DEFAULT_SETTINGS["update_source_mode"]
+            migrated = True
         data["update_defaults_revision"] = DEFAULT_SETTINGS["update_defaults_revision"]
+        if migrated:
+            try:
+                self.save(data)
+            except OSError:
+                pass
         return data
 
     def save(self, data: Dict[str, Any]) -> None:
