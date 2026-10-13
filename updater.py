@@ -226,6 +226,27 @@ def _check_github(repository: str, channel: str, asset_contains: str, timeout: f
     return UpdateCheckResult("found", "GitHub 업데이트 정보를 확인했습니다.", candidates[0], source="github")
 
 
+def list_github_releases(repository: str, channel: str = "beta", asset_contains: str = "PhysicsMathPocket_Setup_", timeout: float = 8.0) -> List[ReleaseInfo]:
+    """Return selectable public releases for the update history/rollback UI."""
+    repo = repository.strip().strip("/")
+    if not repo or "/" not in repo:
+        return []
+    payload = _request_json(f"https://api.github.com/repos/{repo}/releases?per_page=100", timeout=timeout)
+    if not isinstance(payload, list):
+        return []
+    releases: List[ReleaseInfo] = []
+    for item in payload:
+        if not isinstance(item, dict) or item.get("draft"):
+            continue
+        if channel != "beta" and item.get("prerelease"):
+            continue
+        release = _release_from_github(item, asset_contains)
+        if release.download_url:
+            releases.append(release)
+    releases.sort(key=lambda r: (parse_version(r.version), r.build), reverse=True)
+    return releases
+
+
 def _manifest_releases(payload: Any, channel: str, *, base_dir: Optional[Path] = None) -> List[ReleaseInfo]:
     items: Iterable[Dict[str, Any]]
     if isinstance(payload, dict) and isinstance(payload.get("releases"), list):
@@ -451,7 +472,7 @@ def _find_update_agent() -> Path:
     raise FileNotFoundError("PhysicsMathPocketUpdater.exe를 찾지 못했습니다. 3.1.5 빌드에서 업데이트 에이전트를 함께 빌드하세요.")
 
 
-def launch_seamless_update(package_path: Path, *, restart: bool = True) -> subprocess.Popen[Any]:
+def launch_seamless_update(package_path: Path, *, restart: bool = True, rollback: bool = False) -> subprocess.Popen[Any]:
     """Start the external updater helper, then the main app may exit.
 
     The helper runs from TEMP so it can overwrite the installed application in place.
@@ -476,6 +497,8 @@ def launch_seamless_update(package_path: Path, *, restart: bool = True) -> subpr
     ]
     if restart:
         args.extend(["--restart", str(restart_exe)])
+    if rollback:
+        args.extend(["--clear-user-data", "--user-data-dir", str(user_data_dir())])
     return subprocess.Popen(args, close_fds=True)
 
 
@@ -486,3 +509,4 @@ def launch_installer(path: Path, silent: bool = True) -> subprocess.Popen[Any]:
     if silent:
         args.extend(["/SILENT", "/CLOSEAPPLICATIONS", "/NORESTART"])
     return subprocess.Popen(args, close_fds=True)
+

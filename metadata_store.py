@@ -74,6 +74,8 @@ class InstallMetadataStore:
                 "update_count": 0,
                 "last_update_check_at": None,
                 "latest_known": None,
+                "update_history": [],
+                "pending_update": None,
             }
         else:
             old_version = str(data.get("current_version") or self.current_version)
@@ -89,12 +91,32 @@ class InstallMetadataStore:
                 data["channel"] = self.channel
                 data["last_updated_at"] = now
                 data["update_count"] = int(data.get("update_count", 0)) + 1
+                pending = data.get("pending_update") if isinstance(data.get("pending_update"), dict) else {}
+                if str(pending.get("kind") or "").lower() == "rollback":
+                    data["update_history"] = []
+                    data["update_count"] = 0
+                else:
+                    history = data.setdefault("update_history", [])
+                    history.append({
+                        "timestamp": now,
+                        "from_version": old_version,
+                        "from_build": old_build,
+                        "to_version": self.current_version,
+                        "to_build": self.current_build,
+                        "channel": self.channel,
+                        "kind": str(pending.get("kind") or "update"),
+                        "notes": str(pending.get("notes") or "버전 파일이 교체되었습니다."),
+                    })
+                    data["update_history"] = history[-30:]
+                data["pending_update"] = None
             data.setdefault("first_installed_at", now)
             data.setdefault("last_updated_at", data.get("first_installed_at", now))
             data.setdefault("first_version", old_version)
             data.setdefault("first_build", old_build)
             data.setdefault("last_update_check_at", None)
             data.setdefault("latest_known", None)
+            data.setdefault("update_history", [])
+            data.setdefault("pending_update", None)
         stamp = self._installer_stamp()
         if stamp.get("first_installed_at"):
             data["first_installed_at"] = stamp["first_installed_at"]
@@ -118,6 +140,27 @@ class InstallMetadataStore:
         value = self.data.get("latest_known")
         return value if isinstance(value, dict) else None
 
+    def record_update_started(self, release: Dict[str, Any], kind: str = "update") -> None:
+        payload = dict(release)
+        payload["kind"] = kind
+        self.data["pending_update"] = payload
+        self._write()
+
+    def history(self) -> list:
+        value = self.data.get("update_history")
+        return value if isinstance(value, list) else []
+
+    def reset_for_rollback(self, target: Dict[str, Any]) -> None:
+        """Forget version-specific update history before applying an older package."""
+        self.data["update_history"] = []
+        self.data["latest_known"] = None
+        self.data["pending_update"] = dict(target)
+        self.data["pending_update"]["kind"] = "rollback"
+        self.data["previous_version"] = None
+        self.data["previous_build"] = None
+        self.data["update_count"] = 0
+        self._write()
+
     @staticmethod
     def format_timestamp(value: Any) -> str:
         if not value:
@@ -127,3 +170,4 @@ class InstallMetadataStore:
             return parsed.astimezone().strftime("%Y-%m-%d %H:%M")
         except Exception:
             return str(value)
+
