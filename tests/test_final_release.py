@@ -22,7 +22,7 @@ class FinalReleaseTests(unittest.TestCase):
         cls.formulas = build_formula_catalog(cls.terms)
 
     def test_final_version(self) -> None:
-        self.assertEqual(APP_VERSION, "3.1.8")
+        self.assertEqual(APP_VERSION, "3.2.0")
 
     def test_final_content_targets(self) -> None:
         self.assertGreaterEqual(len(self.terms), 2000)
@@ -51,3 +51,6 @@ class FinalReleaseTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
