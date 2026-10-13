@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 from core import APP_BUILD, APP_CHANNEL, APP_VERSION
+from settings_store import DEFAULT_SETTINGS
 from updater import (
     ReleaseInfo,
     check_for_updates,
@@ -20,6 +21,12 @@ from updater import (
 
 
 class UpdateLab313Tests(unittest.TestCase):
+    def test_github_updater_is_a_release_default(self):
+        self.assertEqual(DEFAULT_SETTINGS["update_repository"], "jihun8202-collab/physics-math-pocket")
+        self.assertEqual(DEFAULT_SETTINGS["update_source_mode"], "github")
+        installer = (ROOT / "installer.iss").read_text(encoding="utf-8")
+        self.assertIn("PhysicsMathPocketUpdater.exe", installer)
+
     def test_beta_identity(self):
         self.assertEqual(APP_VERSION, "3.1.7")
         self.assertEqual(APP_BUILD, 31700)
