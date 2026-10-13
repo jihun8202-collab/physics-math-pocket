@@ -11,7 +11,7 @@ from update_agent import apply_update
 
 class SeamlessUpdateTests(unittest.TestCase):
     def test_version(self):
-        self.assertEqual(APP_VERSION, "3.2.0"); self.assertEqual(APP_BUILD, 32001); self.assertEqual(APP_CHANNEL, "stable")
+        self.assertEqual(APP_VERSION, "3.2.0"); self.assertEqual(APP_BUILD, 32002); self.assertEqual(APP_CHANNEL, "stable")
     def test_github_prefers_zip_package(self):
         item={"tag_name":"v3.1.8-beta-build31801","prerelease":True,"assets":[{"name":"PhysicsMathPocket_Setup_3.1.8_Beta_Build31801.exe","browser_download_url":"https://example.invalid/setup.exe","digest":"sha256:"+"a"*64},{"name":"PhysicsMathPocket_Update_3.1.8_Beta_Build31801.zip","browser_download_url":"https://example.invalid/update.zip","digest":"sha256:"+"b"*64}]}
         rel=_release_from_github(item,"PhysicsMathPocket_Setup"); self.assertEqual(rel.asset_kind,"package"); self.assertTrue(rel.asset_name.endswith(".zip"))
@@ -26,6 +26,7 @@ class SeamlessUpdateTests(unittest.TestCase):
         text=(Path(__file__).resolve().parents[1]/'.github/workflows/release.yml').read_text(encoding='utf-8'); self.assertIn('build_release.py',text); self.assertIn('gh release create $env:RELEASE_TAG',text); self.assertIn('--prerelease',text)
 
 if __name__ == '__main__': unittest.main()
+
 
 
 
