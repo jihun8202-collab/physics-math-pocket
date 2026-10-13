@@ -84,7 +84,8 @@ class UpdateLab313Tests(unittest.TestCase):
                 source_mode="local",
             )
             self.assertEqual(result.status, "update_available")
-            self.assertEqual(Path(result.release.local_path), setup)
+            # Windows may spell the same temporary path using an 8.3 alias.
+            self.assertTrue(Path(result.release.local_path).samefile(setup))
 
     @patch("updater._load_config", return_value={})
     def test_auto_mode_falls_back_to_unconfigured_without_remote(self, _config):
