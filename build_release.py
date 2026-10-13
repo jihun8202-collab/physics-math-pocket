@@ -189,7 +189,7 @@ def build_installer() -> None:
             "공식 페이지: https://jrsoftware.org/isdl.php"
         )
     (ROOT / "release").mkdir(exist_ok=True)
-    run([iscc, "/DMyAppVersion=" + APP_VERSION, "/DMyAppBuild=" + str(APP_BUILD), "installer.iss"], "6/6 설치 프로그램 빌드")
+    run([iscc, "/DMyAppVersion=" + APP_VERSION, "/DMyAppBuild=" + str(APP_BUILD), "/DMyAppChannel=" + APP_CHANNEL.capitalize(), "installer.iss"], "6/6 설치 프로그램 빌드")
     setup = ROOT / "release" / ("PhysicsMathPocket_Setup_" + RELEASE_LABEL + ".exe")
     if not setup.exists():
         raise BuildError("설치 프로그램이 생성되지 않았습니다: {}".format(setup))
@@ -216,7 +216,7 @@ def main() -> int:
     write(" Physics + Math Pocket {} · Windows 설치 프로그램 만들기".format(APP_VERSION))
     write("=" * 64)
     try:
-        expected_tag = "v{}_Build{}".format(APP_VERSION, APP_BUILD)
+        expected_tag = "v{}_{}_Build{}".format(APP_VERSION, APP_CHANNEL.capitalize(), APP_BUILD)
         if args.expected_tag and args.expected_tag != expected_tag:
             raise BuildError("Release tag must be " + expected_tag)
         ensure_windows()

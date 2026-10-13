@@ -42,9 +42,9 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(loaded["update_repository"], "jihun8202-collab/physics-math-pocket")
 
     def test_beta_identity(self):
-        self.assertEqual(APP_VERSION, "3.1.7")
-        self.assertEqual(APP_BUILD, 31700)
-        self.assertEqual(APP_CHANNEL, "stable")
+        self.assertEqual(APP_VERSION, "3.1.8")
+        self.assertEqual(APP_BUILD, 31801)
+        self.assertEqual(APP_CHANNEL, "beta")
 
     def test_default_build_mapping(self):
         self.assertEqual(default_build_for_version("3.1.5"), 31500)
@@ -53,7 +53,7 @@ class UpdateLab313Tests(unittest.TestCase):
     def test_local_setup_filename_is_detected(self):
         with tempfile.TemporaryDirectory() as td:
             folder = Path(td)
-            setup = folder / "PhysicsMathPocket_Setup_3.1.8_Beta_Build31801.exe"
+            setup = folder / "PhysicsMathPocket_Setup_3.1.9_Beta_Build31901.exe"
             setup.write_bytes(b"test-installer")
             result = check_for_updates(
                 APP_VERSION,
@@ -65,8 +65,8 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(result.status, "update_available")
             self.assertEqual(result.source, "local")
             self.assertIsNotNone(result.release)
-            self.assertEqual(result.release.version, "3.1.8")
-            self.assertEqual(result.release.build, 31801)
+            self.assertEqual(result.release.version, "3.1.9")
+            self.assertEqual(result.release.build, 31901)
             self.assertTrue(result.release.is_beta)
             self.assertEqual(result.release.sha256, sha256_file(setup))
 
@@ -89,10 +89,10 @@ class UpdateLab313Tests(unittest.TestCase):
             setup = folder / "next.exe"
             setup.write_bytes(b"next-version")
             manifest = {
-                "version": "3.1.8",
-                "build": 31801,
+                "version": "3.1.9",
+                "build": 31901,
                 "channel": "stable",
-                "name": "3.1.8 Stable",
+                "name": "3.1.9 Stable",
                 "file": "next.exe",
                 "sha256": sha256_file(setup),
             }
@@ -136,7 +136,7 @@ class UpdateLab313Tests(unittest.TestCase):
         text = (ROOT / "installer.iss").read_text(encoding="utf-8")
         self.assertIn("AppId={{68D9A3E3-1F4A-4772-90A7-77D4BC2B2A56}", text)
         self.assertIn("UsePreviousAppDir=yes", text)
-        self.assertIn("PhysicsMathPocket_Setup_{#MyAppVersion}_Stable_Build{#MyAppBuild}", text)
+        self.assertIn("PhysicsMathPocket_Setup_{#MyAppVersion}_{#MyAppChannel}_Build{#MyAppBuild}", text)
 
 
 if __name__ == "__main__":

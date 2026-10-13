@@ -5,6 +5,9 @@
 #ifndef MyAppBuild
   #define MyAppBuild "31700"
 #endif
+#ifndef MyAppChannel
+  #define MyAppChannel "Stable"
+#endif
 #define MyAppPublisher "Physics + Math Pocket Project"
 #define MyAppExeName "PhysicsMathPocket.exe"
 #define MyAppCopyright "Copyright © 2026 Physics + Math Pocket Project"
@@ -22,7 +25,7 @@ DefaultGroupName=Physics + Math Pocket
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=release
-OutputBaseFilename=PhysicsMathPocket_Setup_{#MyAppVersion}_Stable_Build{#MyAppBuild}
+OutputBaseFilename=PhysicsMathPocket_Setup_{#MyAppVersion}_{#MyAppChannel}_Build{#MyAppBuild}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern

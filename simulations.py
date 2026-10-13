@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Callable, Dict, Optional
 from physics_engine import FIXED_DT, constant_force_motion
+from beta_simulations import BETA_SIM_SPECS
 
 SIM_TITLES = {
     "newton2": "힘·질량·가속도",
@@ -143,6 +144,11 @@ GENERIC_SIM_SPECS = {
     "newton_method": _spec("뉴턴 방법", "수학", "뉴턴 방법", "x_{n+1}=x_n-f/f'", "초깃값 x₀", "한 번 갱신", -4, 4, "x-(x*x-a)/(2*x) if abs(x)>0.05 else nan", (("목표 a","a",0.2,10,2),)),
     "fourier_series": _spec("푸리에 급수", "수학", "푸리에 급수", "사각파의 유한 사인합", "x", "합", -3.1416, 3.1416, "sum(sin((2*k+1)*x)/(2*k+1) for k in range(int(n)))", (("항 수 n","n",1,12,5),)),
 }
+
+# 3.1.8 Beta: 395 additional subject-diverse relationship labs. Together
+# with the 100 established models and five enhanced physical experiments in
+# the application shell, the beta catalog exposes exactly 500 simulations.
+GENERIC_SIM_SPECS.update(BETA_SIM_SPECS)
 
 # Merge into the public registry used by the UI.
 SIM_TITLES.update({sid: spec["title"] for sid, spec in GENERIC_SIM_SPECS.items()})

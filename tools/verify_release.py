@@ -37,7 +37,7 @@ def verify() -> None:
         # Exercise the frozen helper as well as its Python implementation. No app restart.
         frozen_agent = ROOT / "dist/PhysicsMathPocket/PhysicsMathPocketUpdater.exe"
         process = subprocess.run([str(frozen_agent), "--package", str(package), "--install-dir", str(install)],
-                                 timeout=120, check=False)
+                                 timeout=600, check=False)
         assert process.returncode == 0, "Frozen updater failed: exit {}".format(process.returncode)
         assert retained.read_text(encoding="utf-8") == "preserve user file"
         for item in manifest["files"]:

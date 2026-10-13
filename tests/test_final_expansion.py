@@ -18,13 +18,14 @@ class FinalExpansionTests(unittest.TestCase):
         self.assertGreaterEqual(c['생명과학'],170)
         self.assertGreaterEqual(c['지구과학'],120)
         self.assertGreaterEqual(c['천문학'],60)
-    def test_100_simulators(self):
-        self.assertEqual(len(SIM_TITLES),100)
+    def test_495_catalog_simulators(self):
+        self.assertEqual(len(SIM_TITLES),495)
         self.assertEqual(set(SIM_TITLES),set(SIM_SUBJECTS))
-        # The newer wrapper adds physical models; every one of the original
-        # 100 models must still be linked by the original 50,000 cards.
+        # The original corpus links the established models; beta catalog
+        # entries are available from the dedicated simulator browser.
         linked={t.get('simulator') for t in self.terms[:50000] if t.get('simulator')}
-        self.assertEqual(set(SIM_TITLES),linked)
+        from beta_simulations import BETA_SIM_SPECS
+        self.assertTrue(set(SIM_TITLES) - set(BETA_SIM_SPECS) <= linked)
     def test_science_search(self):
         names={t['name_ko'] for t in self.terms}
         for name in ['보일 법칙','세포막','판 구조론','케플러 제3법칙','리만 제타 함수']:
