@@ -13,7 +13,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 APP_NAME = "PhysicsMathPocket"
 APP_VERSION = "3.1.8"
-APP_BUILD = 31801
+APP_BUILD = 31802
 APP_CHANNEL = "beta"
 APP_COPYRIGHT = "Copyright © 2026 Physics + Math Pocket Project"
 

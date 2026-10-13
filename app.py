@@ -49,7 +49,8 @@ from calculator_specs import CALCULATOR_SPECS, CALCULATOR_CATEGORIES
 from metadata_store import InstallMetadataStore
 from updater import (
     ReleaseInfo, UpdateCheckResult, check_for_updates, default_local_update_dir,
-    download_installer, launch_installer, launch_seamless_update, release_is_newer
+    download_installer, launch_installer, launch_seamless_update, release_is_newer,
+    list_github_releases
 )
 
 THEMES = {
@@ -1767,7 +1768,44 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
             else:
                 messagebox.showwarning("업데이트 확인", result.message, parent=self)
 
-    def install_release(self, release: ReleaseInfo) -> None:
+    def choose_rollback(self) -> None:
+        repository = str(self.settings.get("update_repository", "") or "").strip()
+        if not repository:
+            messagebox.showwarning("롤백", "GitHub 업데이트 저장소가 설정되지 않았습니다.", parent=self)
+            return
+        self.status_var.set("롤백 가능한 릴리스 목록을 불러오는 중…")
+        def worker() -> None:
+            try:
+                # Rollback uses the signed payload ZIP so stale files, assets and
+                # layout resources are removed by the transactional updater.
+                releases = list_github_releases(repository, str(self.settings.get("update_channel", "beta")), asset_contains="PhysicsMathPocket_Update_")
+                self.after(0, lambda: self._show_rollback_choices(releases))
+            except Exception as exc:
+                self.after(0, lambda: messagebox.showerror("롤백 목록 오류", str(exc), parent=self))
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _show_rollback_choices(self, releases: List[ReleaseInfo]) -> None:
+        if not releases:
+            messagebox.showinfo("롤백", "선택할 수 있는 공개 릴리스를 찾지 못했습니다.", parent=self); return
+        dialog = tk.Toplevel(self); dialog.title("버전 롤백"); dialog.transient(self); dialog.grab_set(); dialog.geometry("620x430")
+        t = self.theme
+        tk.Label(dialog, text="돌아갈 버전을 선택하세요", bg=t["surface"], fg=t["text"], font=("Malgun Gothic", 14, "bold")).pack(fill="x", padx=20, pady=(18, 6))
+        tk.Label(dialog, text="롤백하면 최근 검색 기록과 업데이트 기록이 삭제되고 선택한 버전의 파일만 남습니다.", bg=t["surface"], fg=t["danger"], wraplength=560, justify="left").pack(fill="x", padx=20, pady=(0, 10))
+        dialog.configure(bg=t["surface"])
+        box = tk.Listbox(dialog, height=12, font=("Segoe UI", 10), bg=t["surface2"], fg=t["text"], relief="flat")
+        box.pack(fill="both", expand=True, padx=20, pady=8)
+        for rel in releases: box.insert("end", f"{rel.display_version} · {rel.name}")
+        box.selection_set(0)
+        def apply_choice() -> None:
+            index = box.curselection()
+            if not index: return
+            rel = releases[index[0]]
+            if not messagebox.askyesno("롤백 확인", f"{rel.display_version}(으)로 롤백할까요?\n\n검색 기록과 업데이트 기록이 모두 삭제됩니다.", parent=dialog): return
+            dialog.destroy(); self.install_release(rel, rollback=True)
+        self._button(dialog, "선택한 버전으로 롤백", apply_choice, kind="accent", padx=14, pady=8).pack(side="right", padx=20, pady=14)
+        self._button(dialog, "취소", dialog.destroy, kind="ghost", padx=14, pady=8).pack(side="right", pady=14)
+
+    def install_release(self, release: ReleaseInfo, rollback: bool = False) -> None:
         if not release.download_url:
             if release.page_url:
                 self.open_url(release.page_url)
@@ -1786,24 +1824,30 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         def worker() -> None:
             try:
                 path = download_installer(release)
-                self.after(0, lambda: self._launch_downloaded_update(path, release))
+                self.after(0, lambda: self._launch_downloaded_update(path, release, rollback))
             except Exception as exc:
                 self.after(0, lambda: messagebox.showerror("업데이트 실패", str(exc), parent=self))
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _launch_downloaded_update(self, path: Path, release: ReleaseInfo) -> None:
+    def _launch_downloaded_update(self, path: Path, release: ReleaseInfo, rollback: bool = False) -> None:
         seamless = path.suffix.lower() == ".zip" or release.asset_kind == "package"
         method = "앱을 다시 설치하지 않고 현재 프로그램 파일만 교체합니다." if seamless else "설치 프로그램 방식으로 업데이트합니다."
         if not messagebox.askyesno(
-            "업데이트 적용",
-            "{}\n\nSHA-256 검증을 통과했습니다.\n{}\n\n사용자 데이터와 설정은 유지됩니다. 계속할까요?".format(release.display_version, method),
+            "롤백 적용" if rollback else "업데이트 적용",
+            "{}\n\nSHA-256 검증을 통과했습니다.\n{}\n\n{}".format(release.display_version, method, "검색 기록과 업데이트 기록을 삭제하고 진행합니다. 계속할까요?" if rollback else "사용자 데이터와 설정은 유지됩니다. 계속할까요?"),
             parent=self,
         ):
             return
         try:
+            if rollback:
+                self.install_meta.reset_for_rollback(release.as_dict())
+            else:
+                self.install_meta.record_update_started(release.as_dict(), kind="update")
+                self.install_meta.data["pending_update"]["notes"] = release.notes or "릴리스 노트가 제공되지 않았습니다."
+                self.install_meta._write()
             if seamless:
-                launch_seamless_update(path, restart=True)
+                launch_seamless_update(path, restart=True, rollback=rollback)
             else:
                 launch_installer(path, silent=True)
             self.status_var.set("업데이트 준비 완료 · 앱을 다시 시작합니다…")
@@ -1942,6 +1986,19 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         for key,value in settings_rows:
             row=tk.Frame(rc,bg=t["surface2"]); row.pack(fill="x",pady=2); tk.Label(row,text=key,bg=t["surface2"],fg=t["muted"],font=("Malgun Gothic",self._font(8)),padx=10,pady=7).pack(side="left"); tk.Label(row,text=value,bg=t["surface2"],fg=t["text"],font=("Malgun Gothic",self._font(8),"bold"),padx=10,wraplength=330,justify="right").pack(side="right")
         btns=tk.Frame(rc,bg=t["surface"]); btns.pack(anchor="w",pady=(10,0)); self._button(btns,"설정 열기",self.show_settings,kind="normal",padx=12,pady=7).pack(side="left",padx=(0,5)); self._button(btns,"진단",self.run_update_diagnostics,kind="ghost",padx=12,pady=7).pack(side="left")
+
+        outer=self._card(root,padx=20,pady=18); outer.pack(fill="x",pady=(0,12)); c=self._put_card_content(outer)
+        tk.Label(c,text="업데이트 기록",bg=t["surface"],fg=t["text"],font=("Malgun Gothic",self._font(12),"bold")).pack(anchor="w")
+        history = list(reversed(self.install_meta.history()))
+        if history:
+            for item in history[:12]:
+                title = f"{item.get('to_version','?')} · Build {item.get('to_build','?')} · {item.get('kind','update')}"
+                detail = f"{self.install_meta.format_timestamp(item.get('timestamp'))} · {item.get('from_version','?')} → {item.get('to_version','?')}\n{item.get('notes') or '추가/수정 내용이 기록되지 않았습니다.'}"
+                tk.Label(c,text=title,bg=t["surface2"],fg=t["accent2"],font=("Malgun Gothic",self._font(9),"bold"),anchor="w",justify="left").pack(fill="x",pady=(6,0),ipadx=10,ipady=5)
+                tk.Label(c,text=detail,bg=t["surface2"],fg=t["muted"],font=("Malgun Gothic",self._font(8)),wraplength=900,justify="left",anchor="w").pack(fill="x",ipadx=10,ipady=5)
+        else:
+            tk.Label(c,text="아직 설치된 업데이트 기록이 없습니다.",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",self._font(9))).pack(anchor="w",pady=(8,0))
+        self._button(c,"버전 롤백…",self.choose_rollback,kind="ghost",padx=12,pady=7).pack(anchor="w",pady=(12,0))
 
         outer=self._card(root,padx=20,pady=18); outer.pack(fill="x",pady=(0,12)); c=self._put_card_content(outer)
         tk.Label(c,text="새로운 기능 / 릴리스 노트",bg=t["surface"],fg=t["text"],font=("Malgun Gothic",self._font(12),"bold")).pack(anchor="w")

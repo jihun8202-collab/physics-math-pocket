@@ -40,6 +40,17 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+def clear_rollback_user_data(data_dir: Path) -> None:
+    """Clear version-specific state while leaving updater settings available."""
+    data_dir = Path(data_dir)
+    for name in ("recent_searches.json", "favorites.json", "term_notes.json"):
+        try:
+            (data_dir / name).unlink(missing_ok=True)
+        except OSError:
+            pass
+    shutil.rmtree(data_dir / "database", ignore_errors=True)
+
+
 def wait_for_pid(pid: int, timeout: float = 60.0) -> None:
     if pid <= 0:
         return
@@ -202,12 +213,17 @@ def main() -> int:
     parser.add_argument("--install-dir", required=True)
     parser.add_argument("--wait-pid", type=int, default=0)
     parser.add_argument("--restart", default="")
+    parser.add_argument("--clear-user-data", action="store_true")
+    parser.add_argument("--user-data-dir", default="")
     args = parser.parse_args()
     package = Path(args.package).resolve()
     install_dir = Path(args.install_dir).resolve()
     wait_for_pid(args.wait_pid)
     try:
         apply_update(package, install_dir)
+        if args.clear_user_data:
+            data_dir = Path(args.user_data_dir).resolve() if args.user_data_dir else (Path(os.environ.get("LOCALAPPDATA", tempfile.gettempdir())) / "PhysicsMathPocket")
+            clear_rollback_user_data(data_dir)
     except Exception as exc:
         try:
             (Path(tempfile.gettempdir()) / "PhysicsMathPocket_update_error.txt").write_text(str(exc), encoding="utf-8")
