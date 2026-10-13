@@ -1,0 +1,21 @@
+{
+  "version": "3.1.4-beta",
+  "build": 31401,
+  "total": 50000,
+  "distribution": {
+    "물리": 8334,
+    "수학": 8334,
+    "화학": 8333,
+    "생명과학": 8333,
+    "지구과학": 8333,
+    "천문학": 8333
+  },
+  "core_detailed_count": 2363,
+  "extended_index_count": 47637,
+  "note": "핵심 2,363개는 기존 상세 표제어이며, 나머지는 균형 확장을 위한 학습 주제형 확장 인덱스입니다. 확장 인덱스는 핵심 표제어를 보조하며 허위 세부 사실을 생성하지 않도록 짧은 연결 설명만 제공합니다.",
+  "source_strategy": {
+    "curriculum": "2022 개정 수학/과학 교육과정 범위와 OpenStax 표준 범위를 분류 기준으로 사용",
+    "math": "OpenStax Math, NIST DLMF",
+    "science": "OpenStax Science, NASA glossaries, NIST/BIPM for physical standards"
+  }
+}

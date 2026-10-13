@@ -1,0 +1,121 @@
+from __future__ import annotations
+
+import json
+import os
+import tempfile
+import unittest
+from unittest.mock import patch
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+from core import APP_BUILD, APP_CHANNEL, APP_VERSION
+from updater import (
+    ReleaseInfo,
+    check_for_updates,
+    default_build_for_version,
+    release_is_newer,
+    sha256_file,
+)
+
+
+class UpdateLab313Tests(unittest.TestCase):
+    def test_beta_identity(self):
+        self.assertEqual(APP_VERSION, "3.1.6")
+        self.assertEqual(APP_BUILD, 31600)
+        self.assertEqual(APP_CHANNEL, "stable")
+
+    def test_default_build_mapping(self):
+        self.assertEqual(default_build_for_version("3.1.5"), 31500)
+        self.assertEqual(default_build_for_version("3.1.5", True), 31501)
+
+    def test_local_setup_filename_is_detected(self):
+        with tempfile.TemporaryDirectory() as td:
+            folder = Path(td)
+            setup = folder / "PhysicsMathPocket_Setup_3.1.6_Beta_Build31601.exe"
+            setup.write_bytes(b"test-installer")
+            result = check_for_updates(
+                APP_VERSION,
+                APP_BUILD,
+                channel="beta",
+                local_dir=str(folder),
+                source_mode="local",
+            )
+            self.assertEqual(result.status, "update_available")
+            self.assertEqual(result.source, "local")
+            self.assertIsNotNone(result.release)
+            self.assertEqual(result.release.version, "3.1.6")
+            self.assertEqual(result.release.build, 31601)
+            self.assertTrue(result.release.is_beta)
+            self.assertEqual(result.release.sha256, sha256_file(setup))
+
+    def test_stable_channel_ignores_beta_local_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            folder = Path(td)
+            (folder / "PhysicsMathPocket_Setup_3.1.5_Beta_Build31502.exe").write_bytes(b"beta")
+            result = check_for_updates(
+                APP_VERSION,
+                APP_BUILD,
+                channel="stable",
+                local_dir=str(folder),
+                source_mode="local",
+            )
+            self.assertEqual(result.status, "no_release")
+
+    def test_local_manifest_can_drive_update(self):
+        with tempfile.TemporaryDirectory() as td:
+            folder = Path(td)
+            setup = folder / "next.exe"
+            setup.write_bytes(b"next-version")
+            manifest = {
+                "version": "3.1.6",
+                "build": 31601,
+                "channel": "stable",
+                "name": "3.1.6 Stable",
+                "file": "next.exe",
+                "sha256": sha256_file(setup),
+            }
+            (folder / "update-manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+            result = check_for_updates(
+                APP_VERSION,
+                APP_BUILD,
+                channel="stable",
+                local_dir=str(folder),
+                source_mode="local",
+            )
+            self.assertEqual(result.status, "update_available")
+            self.assertEqual(Path(result.release.local_path), setup)
+
+    @patch("updater._load_config", return_value={})
+    def test_auto_mode_falls_back_to_unconfigured_without_remote(self, _config):
+        with tempfile.TemporaryDirectory() as td:
+            result = check_for_updates(
+                APP_VERSION,
+                APP_BUILD,
+                channel="beta",
+                local_dir=td,
+                source_mode="auto",
+            )
+            self.assertEqual(result.status, "unconfigured")
+
+    def test_app_exposes_update_test_controls(self):
+        text = (ROOT / "app.py").read_text(encoding="utf-8")
+        for needle in [
+            "업데이트 기능 테스트",
+            "로컬 업데이트 폴더",
+            "def test_update_prompt",
+            "def run_update_diagnostics",
+            "update_source_mode",
+            "update_local_dir",
+        ]:
+            self.assertIn(needle, text)
+
+    def test_installer_keeps_same_app_id(self):
+        text = (ROOT / "installer.iss").read_text(encoding="utf-8")
+        self.assertIn("AppId={{68D9A3E3-1F4A-4772-90A7-77D4BC2B2A56}", text)
+        self.assertIn("UsePreviousAppDir=yes", text)
+        self.assertIn("PhysicsMathPocket_Setup_{#MyAppVersion}_Stable_Build{#MyAppBuild}", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

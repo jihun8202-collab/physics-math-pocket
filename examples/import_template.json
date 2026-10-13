@@ -1,0 +1,21 @@
+{
+  "terms": [
+    {
+      "name_ko": "사용자 예제 개념",
+      "name_en": "User example concept",
+      "subject": "수학",
+      "category": "사용자 추가",
+      "level": "사용자",
+      "summary": "내가 직접 추가하는 한 줄 설명입니다.",
+      "detail": "여기에 자세한 설명을 작성합니다.",
+      "formula": "",
+      "unit": "",
+      "example": "",
+      "caution": "",
+      "aliases": ["예제"],
+      "related": [],
+      "sources": [],
+      "simulator": ""
+    }
+  ]
+}

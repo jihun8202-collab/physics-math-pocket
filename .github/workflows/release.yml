@@ -1,0 +1,52 @@
+name: Build Windows release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 40
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed.' }
+      - name: Verify registered update destination
+        shell: pwsh
+        env:
+          RELEASE_REPOSITORY: ${{ github.repository }}
+        run: python tools/verify_repository.py --repository $env:RELEASE_REPOSITORY
+      - name: Test, build installer and ZIP, verify ZIP application
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python build_release.py --expected-tag $env:RELEASE_TAG
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ github.ref_name }}
+          path: release/*
+          if-no-files-found: error
+      - name: Publish verified Release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $assets = @(Get-ChildItem -LiteralPath release -File | ForEach-Object { $_.FullName })
+          gh release create $env:RELEASE_TAG @assets --verify-tag --title "Physics + Math Pocket $env:RELEASE_TAG" --notes-file RELEASE_NOTES.md
+          if ($LASTEXITCODE -ne 0) { throw 'Release creation failed.' }

@@ -1,0 +1,25 @@
+Physics + Math Pocket 3.1.5 Beta 2 · UI Overhaul Validation
+============================================================
+Version: 3.1.5 Beta 2
+Build: 31502
+Channel: beta
+
+Validated in the current Linux build environment:
+- Python syntax compile: PASS
+- unittest discovery: 56 / 56 PASS
+- GUI smoke test under isolated Xvfb profile: PASS
+- Simulator smoke test: 100 / 100 PASS
+- Built-in concepts: 50,000
+  - 수학 8,334
+  - 물리 8,334
+  - 화학 8,333
+  - 생명과학 8,333
+  - 지구과학 8,333
+  - 천문학 8,333
+- New icon assets present: PASS
+- Installer output name targets Build 31502: PASS
+
+Important limitations:
+- A final Windows Setup.exe was NOT compiled in this Linux environment.
+- Windows 11 DWM/Mica behavior must be verified on a real Windows 11 machine.
+- End-to-end GitHub Release -> download -> replace -> restart requires a real repository/release and Windows build.

@@ -1,0 +1,15 @@
+Physics + Math Pocket 3.1.5 Beta / Build 31502
+
+배포 전 업데이트 기능 검증용 기능:
+- UpdateInbox 로컬 소스
+- auto/local/github/manifest 모드
+- Beta 업데이트 팝업 가상 테스트
+- 업데이트 진단
+- Setup.exe 파일명 버전 탐지
+- local manifest 지원
+- SHA-256 검증
+
+기본 로컬 폴더:
+%LOCALAPPDATA%\PhysicsMathPocket\UpdateInbox
+
+다음 실제 버전(예: 3.1.5)의 Setup.exe를 폴더에 넣어 end-to-end 업데이트를 시험할 수 있습니다.

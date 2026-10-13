@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.buildenv/
+build/
+dist/
+release/
+*.log
+update_agent_build/
+update_agent_dist/
+work/
+.pytest_cache/

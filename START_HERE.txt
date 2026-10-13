@@ -1,0 +1,6 @@
+Physics + Math Pocket 3.1.5 Beta
+
+1) 바로 실행: RUN_APP.cmd
+2) 설치 프로그램 빌드: BUILD_SETUP_GUI.pyw
+3) 이번 버전: 50,000개 균형 개념 카드 / Build 31502
+4) 핵심 2,363개 + 확장 인덱스 47,637개

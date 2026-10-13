@@ -1,0 +1,108 @@
+{
+  "constants": [
+    {
+      "name_ko": "진공에서의 빛의 속도",
+      "symbol": "c",
+      "value": "299 792 458",
+      "unit": "m/s",
+      "status": "정확",
+      "source": "nist"
+    },
+    {
+      "name_ko": "플랑크 상수",
+      "symbol": "h",
+      "value": "6.626 070 15 × 10⁻³⁴",
+      "unit": "J·s",
+      "status": "정확",
+      "source": "nist"
+    },
+    {
+      "name_ko": "환산 플랑크 상수",
+      "symbol": "ħ",
+      "value": "1.054 571 817… × 10⁻³⁴",
+      "unit": "J·s",
+      "status": "h/(2π)로 유도",
+      "source": "nist"
+    },
+    {
+      "name_ko": "기본전하",
+      "symbol": "e",
+      "value": "1.602 176 634 × 10⁻¹⁹",
+      "unit": "C",
+      "status": "정확",
+      "source": "nist"
+    },
+    {
+      "name_ko": "볼츠만 상수",
+      "symbol": "k_B",
+      "value": "1.380 649 × 10⁻²³",
+      "unit": "J/K",
+      "status": "정확",
+      "source": "nist"
+    },
+    {
+      "name_ko": "아보가드로 상수",
+      "symbol": "N_A",
+      "value": "6.022 140 76 × 10²³",
+      "unit": "mol⁻¹",
+      "status": "정확",
+      "source": "nist"
+    },
+    {
+      "name_ko": "기체상수",
+      "symbol": "R",
+      "value": "8.314 462 618…",
+      "unit": "J/(mol·K)",
+      "status": "N_A k_B로 유도",
+      "source": "nist"
+    },
+    {
+      "name_ko": "중력상수",
+      "symbol": "G",
+      "value": "6.674 30(15) × 10⁻¹¹",
+      "unit": "m³/(kg·s²)",
+      "status": "측정값",
+      "source": "nist"
+    },
+    {
+      "name_ko": "전자 질량",
+      "symbol": "m_e",
+      "value": "9.109 383 7139(28) × 10⁻³¹",
+      "unit": "kg",
+      "status": "2022 CODATA",
+      "source": "nist"
+    },
+    {
+      "name_ko": "양성자 질량",
+      "symbol": "m_p",
+      "value": "1.672 621 925 95(52) × 10⁻²⁷",
+      "unit": "kg",
+      "status": "2022 CODATA",
+      "source": "nist"
+    },
+    {
+      "name_ko": "미세구조상수",
+      "symbol": "α",
+      "value": "7.297 352 5643(11) × 10⁻³",
+      "unit": "무차원",
+      "status": "2022 CODATA",
+      "source": "nist"
+    },
+    {
+      "name_ko": "표준 중력가속도",
+      "symbol": "g₀",
+      "value": "9.806 65",
+      "unit": "m/s²",
+      "status": "정확한 관례값",
+      "source": "bipm"
+    },
+    {
+      "name_ko": "천문단위",
+      "symbol": "au",
+      "value": "149 597 870 700",
+      "unit": "m",
+      "status": "정확",
+      "source": "bipm"
+    }
+  ]
+}
