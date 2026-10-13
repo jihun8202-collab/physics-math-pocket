@@ -25,7 +25,9 @@ class UpdateLab313Tests(unittest.TestCase):
         self.assertEqual(DEFAULT_SETTINGS["update_repository"], "jihun8202-collab/physics-math-pocket")
         self.assertEqual(DEFAULT_SETTINGS["update_source_mode"], "github")
         installer = (ROOT / "installer.iss").read_text(encoding="utf-8")
-        self.assertIn("PhysicsMathPocketUpdater.exe", installer)
+        builder = (ROOT / "build_release.py").read_text(encoding="utf-8")
+        self.assertIn('Source: "dist\\PhysicsMathPocket\\*"', installer)
+        self.assertIn("build_update_agent", builder)
 
     def test_beta_identity(self):
         self.assertEqual(APP_VERSION, "3.1.7")
