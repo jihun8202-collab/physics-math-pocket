@@ -105,7 +105,7 @@ class EnhancedSimulationLifecycleTests(unittest.TestCase):
         self.assertFalse(widget.running)
 
     def test_every_legacy_registry_entry_remains_available(self):
-        self.assertEqual(len(SIM_TITLES), 495)
+        self.assertEqual(len(SIM_TITLES), 5100)
         upgraded = {"newton2": "enhanced_force", "projectile": "enhanced_projectile",
                     "spring": "enhanced_spring", "elastic_collision": "enhanced_collision"}
         for sid in SIM_TITLES:

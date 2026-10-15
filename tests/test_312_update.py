@@ -15,21 +15,21 @@ from metadata_store import InstallMetadataStore
 
 class UpdateInfrastructure312Tests(unittest.TestCase):
     def test_version_and_build(self):
-        self.assertEqual(APP_VERSION, "3.2.0")
-        self.assertEqual(APP_BUILD, 32002)
-        self.assertEqual(APP_CHANNEL, "stable")
+        self.assertEqual(APP_VERSION, "3.5.0")
+        self.assertEqual(APP_BUILD, 35001)
+        self.assertEqual(APP_CHANNEL, "beta")
         self.assertIn("Copyright", APP_COPYRIGHT)
 
     def test_beta_version_comparison(self):
         self.assertLess(parse_version("3.2.0-beta.1"), parse_version("3.2.0"))
-        release = ReleaseInfo("3.2.1", 32100, "beta", "3.2.1 Beta 1")
+        release = ReleaseInfo("3.6.0", 36000, "beta", "3.6.0 Beta 1")
         self.assertTrue(release_is_newer(release, APP_VERSION, APP_BUILD))
 
     def test_local_manifest_beta_channel(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "latest.json"
             path.write_text(json.dumps({"releases": [
-                {"version": "3.2.1", "build": 32100, "channel": "beta", "name": "3.2.1 Beta 1"},
+                {"version": "3.6.0", "build": 36000, "channel": "beta", "name": "3.6.0 Beta 1"},
                 {"version": "3.1.2", "build": 31200, "channel": "stable", "name": "3.1.2"},
             ]}), encoding="utf-8")
             result = check_for_updates(APP_VERSION, APP_BUILD, channel="beta", manifest_url=path.as_uri())
@@ -41,7 +41,7 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "latest.json"
             path.write_text(json.dumps({"releases": [
-                {"version": "3.2.1", "build": 32100, "channel": "beta", "name": "3.2.1 Beta 1"},
+                {"version": "3.6.0", "build": 36000, "channel": "beta", "name": "3.6.0 Beta 1"},
                 {"version": "3.1.2", "build": 31200, "channel": "stable", "name": "3.1.2"},
             ]}), encoding="utf-8")
             result = check_for_updates(APP_VERSION, APP_BUILD, channel="stable", manifest_url=path.as_uri())
@@ -72,8 +72,8 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
         self.assertIn("AppId={{68D9A3E3-1F4A-4772-90A7-77D4BC2B2A56}", text)
         self.assertIn("UsePreviousAppDir=yes", text)
         self.assertIn("PhysicsMathPocket_Setup_{#MyAppVersion}_{#MyAppChannel}_Build{#MyAppBuild}", text)
-        self.assertIn('#define MyAppVersion "3.1.7"', text)
-        self.assertIn('#define MyAppBuild "31700"', text)
+        self.assertIn(f'#define MyAppVersion "{APP_VERSION}"', text)
+        self.assertIn(f'#define MyAppBuild "{APP_BUILD}"', text)
         self.assertIn("VersionInfoCopyright=", text)
 
     def test_app_has_update_ui(self):
@@ -84,7 +84,6 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
 
 
 

@@ -40,10 +40,11 @@ from core import (
 from knowledge_db import KnowledgeDatabase, bytes_to_human
 from settings_store import DEFAULT_SETTINGS, SettingsStore
 from simulations import SIM_TITLES as LEGACY_SIM_TITLES, SIM_SUBJECTS as LEGACY_SIM_SUBJECTS
-from enhanced_simulations import ENHANCED_TITLES, ENHANCED_SUBJECTS, build_simulator, simulator_for_term
+from enhanced_simulations import ENHANCED_TITLES, ENHANCED_SUBJECTS, BIOLOGY_TITLES, BIOLOGY_SUBJECTS, build_simulator, simulator_for_term
+from scientific_catalog import MODELS as SCIENCE_MODELS, SCENARIOS as SCIENCE_SCENARIOS
 from korean_study import build_korean_page
-SIM_TITLES = {**ENHANCED_TITLES, **LEGACY_SIM_TITLES}
-SIM_SUBJECTS = {**LEGACY_SIM_SUBJECTS, **ENHANCED_SUBJECTS}
+SIM_TITLES = {**BIOLOGY_TITLES, **ENHANCED_TITLES, **LEGACY_SIM_TITLES}
+SIM_SUBJECTS = {**LEGACY_SIM_SUBJECTS, **ENHANCED_SUBJECTS, **BIOLOGY_SUBJECTS}
 from formula_catalog import build_formula_catalog, search_formulas
 from calculator_specs import CALCULATOR_SPECS, CALCULATOR_CATEGORIES
 from metadata_store import InstallMetadataStore
@@ -317,7 +318,7 @@ class PhysicsPocketApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.withdraw()
-        self.title("Physics + Math Pocket {}".format(APP_VERSION))
+        self.title("Physics + Math Pocket {}{}".format(APP_VERSION, " Beta" if APP_CHANNEL == "beta" else ""))
         self.geometry("1500x930")
         self.minsize(1180, 740)
 
@@ -877,7 +878,7 @@ class PhysicsPocketApp(tk.Tk):
 
         self._page_title(inner,"학습 도구","필요한 기능으로 바로 이동합니다.")
         tools=tk.Frame(inner,bg=t["bg"]); tools.pack(fill="x",pady=(0,12))
-        tool_specs=[("∑","공식 라이브러리",f"{len(self.formulas):,}개 공식",lambda:self.navigate('formulas')),("▦","계산기",f"{len(CALCULATOR_SPECS)}개 계산기",lambda:self.navigate('calculators')),("◉","시뮬레이션",f"{len(SIM_TITLES)}종 인터랙션",lambda:self.navigate('simulations')),("↻","업데이트 센터",f"Build {APP_BUILD}",lambda:self.navigate('updates'))]
+        tool_specs=[("∑","공식 라이브러리",f"{len(self.formulas):,}개 공식",lambda:self.navigate('formulas')),("▦","계산기",f"{len(CALCULATOR_SPECS)}개 계산기",lambda:self.navigate('calculators')),("◉","시뮬레이션",f"{len(SIM_TITLES)}개 실험 항목",lambda:self.navigate('simulations')),("↻","업데이트 센터",f"Build {APP_BUILD}",lambda:self.navigate('updates'))]
         for i,(icon,title,sub,cmd) in enumerate(tool_specs):
             tools.grid_columnconfigure(i,weight=1,uniform='tools'); outer=self._card(tools,padx=16,pady=15); outer.grid(row=0,column=i,sticky='nsew',padx=(0 if i==0 else 5,0 if i==3 else 5)); c=self._put_card_content(outer)
             tk.Label(c,text=icon,bg=t["surface"],fg=t["accent2"],font=("Segoe UI Symbol",self._font(17),"bold")).pack(anchor='w')
@@ -1643,7 +1644,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
             "왼쪽에서 과목/분야/수준을 좁힐 수 있고, 검색 결과 탭에서 공식·시뮬레이션·즐겨찾기만 볼 수 있습니다.",
             "개념 페이지의 관련 용어를 누르면 사전처럼 계속 이어서 탐색할 수 있습니다.",
         ])
-        guide("2. 개념 시뮬레이터", "500종 시뮬레이터는 값을 움직이며 관계를 확인하는 학습 도구입니다. 전용 그림형과 관계 그래프형이 함께 들어 있습니다.", [
+        guide("2. 개념 시뮬레이터", "50개 계산 모델의 5,000개 조건 실험과 몸 전체 감염·면역 실험실을 제공합니다. 기존 학습 도구 105개도 사용할 수 있습니다.", [
             "슬라이더를 움직이면 그래프/그림이 즉시 갱신됩니다.",
             "재생 버튼이 있는 시뮬레이터는 시간 변화를 볼 수 있습니다.",
             "설정에서 시뮬레이션 표시, 애니메이션, 30/60 FPS를 바꿀 수 있습니다.",
@@ -2047,7 +2048,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
 
         sections=[
             ("라이선스","프로그램 소스 코드는 MIT License를 사용합니다. 앱에 포함된 자체 작성 사전 설명의 이용 조건과 제3자 자료의 개별 조건은 LICENSE.md와 SOURCES.md에서 확인할 수 있습니다."),
-            ("내용 규모",f"과학 {self.subject_counts['과학']:,}개 + 수학 {self.subject_counts['수학']:,}개 기본 개념, {len(self.formulas):,}개 공식·관계식, {len(CALCULATOR_SPECS)}개 계산기, {len(SIM_TITLES)}종 미니 시뮬레이터를 갖춘 Windows 우선 오프라인 전자사전입니다."),
+            ("내용 규모",f"과학 {self.subject_counts['과학']:,}개 + 수학 {self.subject_counts['수학']:,}개 기본 개념, {len(self.formulas):,}개 공식·관계식, {len(CALCULATOR_SPECS)}개 계산기, {len(SIM_TITLES)}개 실험 항목를 갖춘 Windows 우선 오프라인 전자사전입니다."),
             ("UI 설계 원칙","웹 사전의 큰 검색창·표제어 카드·관련 개념·백과형 상세 보기처럼 빠르게 훑을 수 있는 구조를 참고했지만, 특정 서비스의 로고·문장·이미지·코드·고유 디자인을 복제하지 않은 독자 UI입니다."),
             ("내용 작성 원칙","BIPM·NIST·OpenStax·NASA·CERN과 교육과정·대학 공개강의 등 신뢰 가능한 자료를 대조해 설명을 새로 작성합니다. 외부 사전의 설명을 대량 복사하거나 내장하지 않습니다."),
             ("사용자 데이터와 1~5GB","기본 지식은 앱에 포함된 읽기 전용 데이터이고, 사용자가 추가·가져오기한 항목은 별도 SQLite DB에 저장됩니다. 5GB를 미리 빈 파일로 잡지 않고 필요할 때만 커지며 설정에서 1~5GB 소프트 한도를 정합니다."),
@@ -2207,65 +2208,8 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         build_korean_page(self)
 
     def show_simulations(self) -> None:
-        self.current_page="simulations"
-        self.current_term=None
-        self._refresh_nav_state()
-        frame=self._clear_center(); t=self.theme
-        self._page_title(frame,"개념 시뮬레이터",f"{len(SIM_TITLES)}종 · 과목 필터와 검색으로 빠르게 찾고, 슬라이더로 관계를 직접 확인합니다.")
-
-        chooser=self._card(frame,padx=16,pady=13); chooser.pack(fill="x",pady=(0,10)); c=self._put_card_content(chooser)
-        search_var=tk.StringVar(); subject_var=tk.StringVar(value="전체"); selected_var=tk.StringVar(); count_var=tk.StringVar()
-        search=tk.Entry(c,textvariable=search_var,bg=t["surface2"],fg=t["text"],insertbackground=t["text"],relief="flat",font=("Malgun Gothic",self._font(10)))
-        search.pack(side="left",fill="x",expand=True,ipady=9,padx=(0,8))
-        subjects=["전체"]+sorted(set(SIM_SUBJECTS.values()))
-        ttk.Combobox(c,textvariable=subject_var,values=subjects,state="readonly",width=12).pack(side="left",padx=4)
-        selector=ttk.Combobox(c,textvariable=selected_var,state="readonly",width=34)
-        selector.pack(side="left",padx=4)
-        tk.Label(c,textvariable=count_var,bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",self._font(8)),width=8,anchor="e").pack(side="right")
-
-        holder=ScrollableFrame(frame,t["bg"]); holder.pack(fill="both",expand=True)
-        filtered_ids=[]
-
-        def refresh_choices(*_args):
-            nonlocal filtered_ids
-            q=search_var.get().strip().casefold(); sub=subject_var.get()
-            filtered_ids=[sid for sid,title in SIM_TITLES.items() if (sub=="전체" or SIM_SUBJECTS.get(sid)==sub) and (not q or q in (title+" "+sid+" "+SIM_SUBJECTS.get(sid,"")).casefold())]
-            display=[f"{SIM_TITLES[sid]}  [{SIM_SUBJECTS.get(sid,'')}]" for sid in filtered_ids]
-            selector.configure(values=display)
-            count_var.set(f"{len(display)}개")
-            if display:
-                if selected_var.get() not in display: selected_var.set(display[0])
-            else:
-                selected_var.set(""); render()
-
-        def render(*_args):
-            for w in holder.inner.winfo_children(): w.destroy()
-            if not selected_var.get() or not filtered_ids:
-                outer=self._card(holder.inner,padx=22,pady=22); outer.pack(fill="x",pady=6); x=self._put_card_content(outer)
-                tk.Label(x,text="일치하는 시뮬레이터가 없습니다.",bg=t["surface"],fg=t["text"],font=("Malgun Gothic",self._font(12),"bold")).pack(anchor="w")
-                return
-            display=[f"{SIM_TITLES[sid]}  [{SIM_SUBJECTS.get(sid,'')}]" for sid in filtered_ids]
-            try: idx=display.index(selected_var.get())
-            except ValueError: idx=0
-            sid=filtered_ids[idx]; title=SIM_TITLES[sid]; subject=SIM_SUBJECTS.get(sid,"과학")
-            outer=self._card(holder.inner,padx=22,pady=18); outer.pack(fill="x",pady=6); x=self._put_card_content(outer)
-            head=tk.Frame(x,bg=t["surface"]); head.pack(fill="x",pady=(0,8))
-            tk.Label(head,text=title,bg=t["surface"],fg=t["text"],font=("Malgun Gothic",self._font(14),"bold")).pack(side="left")
-            tk.Label(head,text=subject,bg=t["accent_soft"],fg=t["accent2"],font=("Malgun Gothic",self._font(8),"bold"),padx=8,pady=4).pack(side="right")
-            term={"name_ko":title,"subject":subject,"category":"","simulator":sid}
-            sim=build_simulator(x,term,self.theme,fps=int(self.settings.get("simulation_fps",30)))
-            if sim is not None:
-                if not bool(self.settings.get("animations",True)): sim.play_btn.configure(state="disabled",text="정적 모드")
-                sim.pack(fill="x"); self._active_simulators=[sim]
-            linked=[term for term in self.terms if term.get("simulator")==sid]
-            if linked:
-                related=tk.Frame(x,bg=t["surface"]); related.pack(fill="x",pady=(12,0))
-                tk.Label(related,text="연결 개념",bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",self._font(8),"bold")).pack(side="left",padx=(0,8))
-                for z in linked[:5]: self._chip(related,z.get("name_ko",""),lambda q=z:self.show_term(q),accent=False).pack(side="left",padx=3)
-            holder.to_top(); self.status_var.set(f"시뮬레이터 · {title} · 전체 {len(SIM_TITLES)}종")
-
-        search_var.trace_add("write",refresh_choices); subject_var.trace_add("write",refresh_choices); selected_var.trace_add("write",render)
-        refresh_choices(); render(); search.focus_set()
+        from simulation_browser import build_simulation_browser
+        build_simulation_browser(self, ScrollableFrame)
 
     def show_data_manager(self) -> None:
         self.current_page="data"; self.current_term=None; self._refresh_nav_state(); frame=self._clear_center(); t=self.theme; self._page_title(frame,"내 데이터", "내가 직접 추가한 개념과 외부 JSON/CSV 확장팩을 관리합니다.")
@@ -2401,4 +2345,3 @@ def run() -> None:
             root.destroy()
         except Exception:
             raise
-

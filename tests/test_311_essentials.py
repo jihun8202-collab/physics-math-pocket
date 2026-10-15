@@ -19,7 +19,7 @@ class EssentialsPatch311Tests(unittest.TestCase):
         cls.by_name = {t["name_ko"]: t for t in cls.terms}
 
     def test_version(self) -> None:
-        self.assertEqual(APP_VERSION, "3.2.0")
+        self.assertEqual(APP_VERSION, "3.5.0")
 
     def test_foundational_math_is_present(self) -> None:
         required = {
@@ -64,7 +64,6 @@ class EssentialsPatch311Tests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
 
 
 

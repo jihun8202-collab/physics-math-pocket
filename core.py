@@ -12,9 +12,9 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 APP_NAME = "PhysicsMathPocket"
-APP_VERSION = "3.2.0"
-APP_BUILD = 32002
-APP_CHANNEL = "stable"
+APP_VERSION = "3.5.0"
+APP_BUILD = 35001
+APP_CHANNEL = "beta"
 APP_COPYRIGHT = "Copyright © 2026 Physics + Math Pocket Project"
 
 
@@ -360,4 +360,3 @@ def format_number(value: float) -> str:
         mantissa, exponent = f"{value:.10e}".split("e")
         return f"{mantissa} × 10^{int(exponent)}"
     return f"{value:,.10g}"
-

@@ -18,8 +18,8 @@ class FinalExpansionTests(unittest.TestCase):
         self.assertGreaterEqual(c['생명과학'],170)
         self.assertGreaterEqual(c['지구과학'],120)
         self.assertGreaterEqual(c['천문학'],60)
-    def test_495_catalog_simulators(self):
-        self.assertEqual(len(SIM_TITLES),495)
+    def test_5100_catalog_entries(self):
+        self.assertEqual(len(SIM_TITLES),5100)
         self.assertEqual(set(SIM_TITLES),set(SIM_SUBJECTS))
         # The original corpus links the established models; beta catalog
         # entries are available from the dedicated simulator browser.

@@ -1,6 +1,10 @@
-Physics + Math Pocket 3.1.5 Beta
+Physics + Math Pocket 3.5.0 Beta · Build 35001
 
 1) 바로 실행: RUN_APP.cmd
 2) 설치 프로그램 빌드: BUILD_SETUP_GUI.pyw
-3) 이번 버전: 50,000개 균형 개념 카드 / Build 31502
-4) 핵심 2,363개 + 확장 인덱스 47,637개
+3) 과학 실험실 첫 화면: 몸 전체 감염·면역 실험실
+4) 18개 대표 장기 구획 / 12개 면역 활동 / 빠른 모형 시간 / 지원 개입
+5) 50개 계산 모델 × 100개 조건 = 5,000개 실험 + 기존 도구 105개
+6) 기존 정식 앱은 설정 → 업데이트 채널 Beta → 업데이트 확인
+7) 생명과학 모형은 교육용 가상 지표입니다. 실제 통증·사망 시각을 예측하지 않습니다.
+8) 이번 변경: RELEASE_NOTES_3.5.md / 계산 근거: BIOLOGY_MODEL.md, SIMULATION_MODELS.md
