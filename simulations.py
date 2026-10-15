@@ -145,9 +145,10 @@ GENERIC_SIM_SPECS = {
     "fourier_series": _spec("푸리에 급수", "수학", "푸리에 급수", "사각파의 유한 사인합", "x", "합", -3.1416, 3.1416, "sum(sin((2*k+1)*x)/(2*k+1) for k in range(int(n)))", (("항 수 n","n",1,12,5),)),
 }
 
-# 3.1.8 Beta: 395 additional subject-diverse relationship labs. Together
-# with the 100 established models and five enhanced physical experiments in
-# the application shell, the beta catalog exposes exactly 500 simulations.
+# 3.5: 5,000 explicit scenarios from 50 scientific model families. The enhanced
+# factory routes them to their analytic viewer or deterministic physics engine.
+# The original 100 entries remain available; beta 3.1.8's mislabeled clones
+# have been replaced, rather than multiplied under unrelated scientific names.
 GENERIC_SIM_SPECS.update(BETA_SIM_SPECS)
 
 # Merge into the public registry used by the UI.

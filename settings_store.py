@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-from core import user_data_dir
+from core import user_data_dir, APP_CHANNEL
 
 DEFAULT_SETTINGS: Dict[str, Any] = {
     # Public release feed for the shipped 3.1.7 app.  Users can override this
@@ -20,7 +20,7 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "search_result_limit": 100,
     "confirm_external_links": False,
     "check_updates_on_startup": True,
-    "update_channel": "stable",
+    "update_channel": APP_CHANNEL,
     "update_manifest_url": "",
     "update_source_mode": "github",
     "update_defaults_revision": 2,

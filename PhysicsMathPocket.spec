@@ -16,6 +16,8 @@ a = Analysis(
         (str(ROOT / "LICENSE.md"), "."),
         (str(ROOT / "README_KO.md"), "."),
         (str(ROOT / "START_HERE.txt"), "."),
+        (str(ROOT / "BIOLOGY_MODEL.md"), "."),
+        (str(ROOT / "SIMULATION_MODELS.md"), "."),
     ],
     hiddenimports=[],
     hookspath=[],

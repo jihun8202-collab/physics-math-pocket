@@ -16,7 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from core import resource_path, user_data_dir
 
-USER_AGENT = "PhysicsMathPocket-Updater/3.1.7"
+USER_AGENT = "PhysicsMathPocket-Updater/3.5.0"
 
 
 @dataclass
@@ -219,7 +219,11 @@ def _check_github(repository: str, channel: str, asset_contains: str, timeout: f
             continue
         if channel != "beta" and item.get("prerelease"):
             continue
-        candidates.append(_release_from_github(item, asset_contains))
+        release = _release_from_github(item, asset_contains)
+        # A just-created or failed build may have a public page but no payload.
+        # Only offer versions that can actually be downloaded and installed.
+        if release.download_url:
+            candidates.append(release)
     if not candidates:
         return UpdateCheckResult("no_release", "공개된 업데이트 릴리스를 찾지 못했습니다.", source="github")
     candidates.sort(key=lambda r: (parse_version(r.version), r.build), reverse=True)

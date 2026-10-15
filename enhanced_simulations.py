@@ -12,6 +12,10 @@ import webbrowser
 from physics_engine import FIXED_DT, PhysicsEngine, Settings
 from simulations import build_simulator as legacy_build_simulator
 from simulations import simulator_for_term as legacy_simulator_for_term
+from scientific_catalog import SCENARIOS
+
+BIOLOGY_TITLES = {"biology_body": "몸 전체 감염·면역 실험실"}
+BIOLOGY_SUBJECTS = {"biology_body": "생명과학"}
 
 ENHANCED_TITLES = {
     "enhanced_collision": "실험 · 여러 물체의 2차원 충돌",
@@ -55,7 +59,7 @@ SPECS = {
             ("mass", "추의 질량", "kg", 0.1, 10, 1),
             ("gravity", "중력 가속도", "m/s²", 1, 15, 9.80665),
         ],
-        "notes": "sin θ를 그대로 계산하여 큰 각도에서 주기가 길어지는 현상을 표현합니다. 늘어나지 않는 질량 없는 줄, 점질량 추, 일정한 중력, 각속도에 비례하는 감쇠를 가정합니다. 추의 크기는 보기 쉽게 표현했습니다. 에너지는 가장 낮은 위치를 기준으로 합니다. 참고 주기 T₀는 작은 각도·감쇠 없음에만 해당합니다.",
+        "notes": "sin θ를 그대로 계산하여 큰 각도에서 주기가 길어지는 현상을 표현합니다. 질량 없는 강체 막대와 점질량 추, 일정한 중력, 각속도에 비례하는 감쇠를 가정합니다. 90°를 넘는 처음 각도에서도 막대 길이를 유지하며, 느슨해질 수 있는 실제 줄의 운동은 포함하지 않습니다. 추의 크기는 보기 쉽게 표현했습니다. 에너지는 가장 낮은 위치를 기준으로 합니다. 참고 주기 T₀는 작은 각도·감쇠 없음에만 해당합니다.",
         "source": "https://openstax.org/books/college-physics-2e/pages/16-4-the-simple-pendulum",
     },
     "spring": {
@@ -79,11 +83,34 @@ LEGACY_PHYSICAL_ALIASES = {
 
 def simulator_for_term(term: dict) -> str:
     explicit = str(term.get("simulator", "")).strip()
+    if explicit in BIOLOGY_TITLES:
+        return explicit
     return LEGACY_PHYSICAL_ALIASES.get(explicit, explicit) if explicit in ENHANCED_TITLES or explicit in LEGACY_PHYSICAL_ALIASES else legacy_simulator_for_term(term)
 
 
 def build_simulator(master: tk.Misc, term: dict, theme: dict, fps: int = 30):
     sid = str(term.get("simulator", "")).strip()
+    if sid in BIOLOGY_TITLES:
+        from biology_simulation import BiologySimulator
+        return BiologySimulator(master, theme, fps=fps)
+    if sid in SCENARIOS:
+        spec = SCENARIOS[sid]
+        if spec.get("dynamic"):
+            dynamic = spec["dynamic"]
+            sim = EnhancedSimulator(master, "enhanced_" + dynamic["kind"], theme, fps)
+            sim._setting_up = True
+            for name, value in dynamic["settings"].items():
+                if name not in sim._vars:
+                    sim.destroy()
+                    raise ValueError("Unsupported scenario parameter: " + name)
+                sim._vars[name].set(value)
+            sim._setting_up = False
+            sim.reset()
+            sim.title_label.configure(text=spec["title"])
+            sim.notes_label.configure(text="모델과 가정 · " + spec["notes"] + "\n같은 계산 모델의 100개 초기 조건 중 하나입니다.")
+            return sim
+        from scientific_simulation import ScientificGraphSimulator
+        return ScientificGraphSimulator(master, sid, theme, fps)
     model = LEGACY_PHYSICAL_ALIASES.get(sid, sid)
     if model == "enhanced_collision":
         from collision_simulation import CollisionSimulator

@@ -22,12 +22,12 @@ class FinalReleaseTests(unittest.TestCase):
         cls.formulas = build_formula_catalog(cls.terms)
 
     def test_final_version(self) -> None:
-        self.assertEqual(APP_VERSION, "3.2.0")
+        self.assertEqual(APP_VERSION, "3.5.0")
 
     def test_final_content_targets(self) -> None:
         self.assertGreaterEqual(len(self.terms), 2000)
         self.assertGreaterEqual(len(self.formulas), 500)
-        self.assertEqual(len(SIM_TITLES), 495)
+        self.assertEqual(len(SIM_TITLES), 5100)
         self.assertGreaterEqual(len(CALCULATOR_SPECS), 50)
 
     def test_formula_ids_unique_and_searchable(self) -> None:
