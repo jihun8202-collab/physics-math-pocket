@@ -27,11 +27,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Confirm beta release not already published
-        shell: pwsh
-        run: |
-          gh release view $env:RELEASE_TAG *> $null
-          if ($LASTEXITCODE -eq 0) { throw "Release already exists; refusing to replace a published build." }
+      # gh release create will reject an existing tag/release instead of overwriting assets.
       - name: Install Inno Setup
         shell: pwsh
         run: |
