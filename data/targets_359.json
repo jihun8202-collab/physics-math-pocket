@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "development_version": "3.5.9",
+  "build": 35901,
+  "channel": "beta",
+  "display_name": "종합 지식 사전",
+  "status": "DRAFT-NOT-PUBLISHED",
+  "preservation": [
+    "existing installs keep PhysicsMathPocket internal package identifier and AppId",
+    "preserve %LOCALAPPDATA%/PhysicsMathPocket user data",
+    "existing original 50,000 cards and original quiz bank remain unchanged",
+    "keep 5,000 parameterized simulations and existing 100 base simulators",
+    "retain body/immune simulator"
+  ],
+  "subjects": [
+    "수학",
+    "물리",
+    "화학",
+    "생명과학",
+    "지구과학",
+    "천문학",
+    "국어"
+  ],
+  "subject_term_targets": {
+    "수학": 10000,
+    "물리": 15000,
+    "화학": 20000,
+    "생명과학": 9000,
+    "지구과학": 9500,
+    "천문학": 9000,
+    "국어": 50000
+  },
+  "total_term_target": 122500,
+  "curated_question_targets": {
+    "per_subject": 50000,
+    "total": 350000,
+    "actual_existing_reviewed": 76,
+    "remaining": 349924
+  },
+  "concept_exercises": {
+    "per_concept": 5,
+    "total_display_slots_at_target": 612500,
+    "algorithm": "prefer editor-reviewed authored questions; fill missing slots with mechanically checkable card-reading questions",
+    "source": "same on-device concept card fields, no external fact generation",
+    "not_counted_toward_curated_target": true,
+    "verification_limitation": "Mechanical check can verify consistency with the card but not source scientific correctness.",
+    "average_difficulty": "basic source-reading exercises only, advanced question difficulty requires reviewed authoring."
+  },
+  "other_features": [
+    "Pocket Glass UI - minimal light/dark book+orbit identity",
+    "settings improvements",
+    "source attribution and licencing",
+    "offline quiz ranking using history",
+    "Windows build, GitHub Actions test, reversible SHA-256 update",
+    "no release tag before validation"
+  ]
+}
