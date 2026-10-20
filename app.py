@@ -44,6 +44,7 @@ from enhanced_simulations import ENHANCED_TITLES, ENHANCED_SUBJECTS, BIOLOGY_TIT
 from scientific_catalog import MODELS as SCIENCE_MODELS, SCENARIOS as SCIENCE_SCENARIOS
 from korean_study import build_korean_page
 from quiz_panel import build_concept_quiz_panel
+from quiz_browser import build_quiz_browser
 SIM_TITLES = {**BIOLOGY_TITLES, **ENHANCED_TITLES, **LEGACY_SIM_TITLES}
 SIM_SUBJECTS = {**LEGACY_SIM_SUBJECTS, **ENHANCED_SUBJECTS, **BIOLOGY_SUBJECTS}
 from formula_catalog import build_formula_catalog, search_formulas
@@ -505,7 +506,7 @@ class PhysicsPocketApp(tk.Tk):
         items = [
             ("home", "⌂", "홈"), ("dictionary", "⌕", "개념 탐색"), ("formulas", "∑", "공식"),
             ("calculators", "▦", "계산기"), ("simulations", "◉", "시뮬레이션"), ("constants", "⊙", "물리상수"),
-            ("korean", "가", "국어 학습"), ("converter", "⇄", "단위 변환"), ("data", "▣", "내 데이터"),
+            ("korean", "가", "국어 학습"), ("quizzes", "?", "문제은행"), ("converter", "⇄", "단위 변환"), ("data", "▣", "내 데이터"),
         ]
         for key, icon, label in items:
             btn = tk.Button(self.nav_rail, text=f"{icon}    {label}", command=lambda k=key: self.navigate(k), relief="flat", bd=0,
@@ -771,6 +772,7 @@ class PhysicsPocketApp(tk.Tk):
         elif page == "formulas": self.show_formulas()
         elif page == "simulations": self.show_simulations()
         elif page == "korean": self.show_korean()
+        elif page == "quizzes": build_quiz_browser(self)
         elif page == "constants": self.show_constants()
         elif page == "converter": self.show_converter()
         elif page == "calculators": self.show_calculators()
@@ -781,7 +783,7 @@ class PhysicsPocketApp(tk.Tk):
 
     def _refresh_nav_state(self) -> None:
         t = self.theme
-        page_labels = {"home":"홈","dictionary":"개념 탐색","results":"검색 결과","term":"개념 상세","formulas":"공식","simulations":"시뮬레이션","calculators":"계산기","constants":"물리상수","converter":"단위 변환","data":"내 데이터","updates":"업데이트 센터","help":"도움말","about":"앱 정보"}
+        page_labels = {"home":"홈","dictionary":"개념 탐색","results":"검색 결과","term":"개념 상세","formulas":"공식","simulations":"시뮬레이션","calculators":"계산기","constants":"물리상수","quizzes":"문제은행","converter":"단위 변환","data":"내 데이터","updates":"업데이트 센터","help":"도움말","about":"앱 정보"}
         if hasattr(self, "header_context_var"):
             self.header_context_var.set("국어 학습" if self.current_page == "korean" else page_labels.get(self.current_page, "Physics + Math Pocket"))
         for key, button in getattr(self, "nav_buttons", {}).items():
