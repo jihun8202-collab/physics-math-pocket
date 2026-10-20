@@ -46,7 +46,7 @@ class ConceptDrillIndex:
     def __init__(self, terms: Iterable[dict]):
         self.by_subject: Dict[str, List[dict]] = defaultdict(list)
         self.all_terms: List[dict] = []
-        self.subjects = tuple(SUBJECTS)
+        self.subjects = tuple(SUBJECTS) + ("사용자",)
         for term in terms:
             if not isinstance(term, dict) or not term.get("id"):
                 continue
