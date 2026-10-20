@@ -9,10 +9,10 @@ from typing import Iterable, Optional
 
 from core import load_json, normalize, hangul_initials, is_initial_query
 
-CATEGORIES = ("전체", "문법", "문학", "읽기", "쓰기", "듣기·말하기", "매체")
+CATEGORIES = ("전체", "문법", "문학", "읽기", "쓰기", "듣기·말하기", "매체", "어휘", "관용구", "속담", "사자성어", "맞춤법", "방언", "고어", "기타")
 
 
-def filter_korean_terms(terms: Iterable[dict], query: str = "", category: str = "전체") -> list:
+def filter_korean_terms(terms: Iterable[dict], query: str = "", category: str = "전체", limit: int | None = 300) -> list:
     """Search full explanations, examples, cautions, names and Korean initials."""
     q = normalize(query)
     initials = is_initial_query(query) if q else False
@@ -23,7 +23,7 @@ def filter_korean_terms(terms: Iterable[dict], query: str = "", category: str = 
         short_category = term.get("category", "").removeprefix("국어 · ")
         if category != "전체" and short_category != category:
             continue
-        blob = normalize(" ".join(str(term.get(key, "")) for key in
+        blob = term.get("_search_blob") or normalize(" ".join(str(term.get(key, "")) for key in
                                   ("name_ko", "summary", "detail", "example", "caution", "category")))
         title = normalize(term.get("name_ko", ""))
         if q and q not in blob and not (initials and q in hangul_initials(term.get("name_ko", ""))):
@@ -32,6 +32,10 @@ def filter_korean_terms(terms: Iterable[dict], query: str = "", category: str = 
         results.append((rank, CATEGORIES.index(short_category) if short_category in CATEGORIES else 99,
                         term.get("name_ko", ""), term))
     results.sort(key=lambda row: row[:3])
+    if limit is not None:
+        if limit < 1:
+            raise ValueError("limit must be positive")
+        results = results[:limit]
     return [row[3] for row in results]
 
 
@@ -52,6 +56,8 @@ def source_label(url: str) -> str:
         return "국립국어원 어문 규정"
     if "stdict.korean.go.kr" in url:
         return "국립국어원 표준국어대사전"
+    if "opendict.korean.go.kr" in url or "data.go.kr/data/15019347" in url:
+        return "국립국어원 우리말샘"
     if "korean.go.kr" in url:
         return "국립국어원 설명"
     if "ncic.re.kr" in url:
@@ -215,7 +221,7 @@ def build_korean_page(app):
         list_box.delete(0, "end")
         for term in visible:
             list_box.insert("end", term["name_ko"])
-        count.set(f"검색 결과 {len(visible)}개")
+        count.set(f"검색 결과 {len(visible)}개 표시" + (" · 더 구체적으로 검색해 보세요" if len(visible) >= 300 else ""))
         if visible:
             current = next((i for i,term in enumerate(visible) if term["id"]==selected["id"]), 0)
             list_box.selection_set(current)
