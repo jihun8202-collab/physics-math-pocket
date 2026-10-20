@@ -64,7 +64,7 @@ Name: "{autoprograms}\종합 지식 사전"; Filename: "{app}\{#MyAppExeName}"; 
 Name: "{autodesktop}\종합 지식 사전"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Physics + Math Pocket 실행"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "종합 지식 사전 실행"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent
 
 [Code]
 procedure CurStepChanged(CurStep: TSetupStep);
