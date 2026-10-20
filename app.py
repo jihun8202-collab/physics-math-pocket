@@ -43,6 +43,7 @@ from simulations import SIM_TITLES as LEGACY_SIM_TITLES, SIM_SUBJECTS as LEGACY_
 from enhanced_simulations import ENHANCED_TITLES, ENHANCED_SUBJECTS, BIOLOGY_TITLES, BIOLOGY_SUBJECTS, build_simulator, simulator_for_term
 from scientific_catalog import MODELS as SCIENCE_MODELS, SCENARIOS as SCIENCE_SCENARIOS
 from korean_study import build_korean_page
+from quiz_panel import build_concept_quiz_panel
 SIM_TITLES = {**BIOLOGY_TITLES, **ENHANCED_TITLES, **LEGACY_SIM_TITLES}
 SIM_SUBJECTS = {**LEGACY_SIM_SUBJECTS, **ENHANCED_SUBJECTS, **BIOLOGY_SUBJECTS}
 from formula_catalog import build_formula_catalog, search_formulas
@@ -1111,6 +1112,10 @@ class PhysicsPocketApp(tk.Tk):
             self._detail_section(inner, "예시", term["example"], "◎")
         if term.get("caution"):
             self._detail_section(inner, "헷갈리기 쉬운 점", term["caution"], "!")
+
+        # Five verified question slots directly under every concept explanation.
+        # Missing items are displayed as not-yet-available, never auto-invented.
+        build_concept_quiz_panel(self, inner, term)
 
         sim_id = simulator_for_term(term)
         if sim_id and bool(self.settings.get("show_simulations", True)):
