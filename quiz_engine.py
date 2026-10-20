@@ -152,6 +152,44 @@ class QuizBank:
                     q["concept_id"] == tid or normalize(q["concept_name"]) == name else "연관 개념"))
         return list(unique.values())
 
+    def catalog(self, *, subject: str = "전체", difficulty: str = "전체",
+                kind: str = "전체", limit: int = 80) -> List[dict]:
+        """Browse by three explicit filters, with bounded SQLite queries."""
+        if limit < 1 or limit > 500:
+            raise ValueError("Catalog limit must be between 1 and 500")
+        if subject != "전체" and subject not in SUBJECTS:
+            raise ValueError("Unknown subject filter")
+        if difficulty != "전체" and difficulty not in DIFFICULTIES:
+            raise ValueError("Unknown difficulty filter")
+        if kind != "전체" and kind not in KINDS:
+            raise ValueError("Unknown kind filter")
+        records = [q for q in self.questions if
+                   (subject == "전체" or q["subject"] == subject) and
+                   (difficulty == "전체" or q["difficulty"] == difficulty) and
+                   (kind == "전체" or q["kind"] == kind)]
+        if self.sqlite_path:
+            conditions = []
+            params = []
+            for column, value in (("subject", subject), ("difficulty", difficulty), ("kind", kind)):
+                if value != "전체":
+                    conditions.append(column + "=?")
+                    params.append(value)
+            query = "SELECT payload_json FROM questions"
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+            query += " ORDER BY subject, difficulty, kind, id LIMIT ?"
+            uri = self.sqlite_path.resolve().as_uri() + "?mode=ro"
+            connection = sqlite3.connect(uri, uri=True)
+            try:
+                records.extend(validate_question(json.loads(r[0])) for r in
+                               connection.execute(query, [*params, limit]).fetchall())
+            finally:
+                connection.close()
+        by_id = {q["id"]: q for q in records}
+        return sorted(by_id.values(), key=lambda q:
+                      (SUBJECTS.index(q["subject"]), DIFFICULTIES.index(q["difficulty"]),
+                       KINDS.index(q["kind"]), q["id"]))[:limit]
+
     def inventory(self) -> dict:
         counts = Counter(q["subject"] for q in self.questions)
         if self.sqlite_path:
