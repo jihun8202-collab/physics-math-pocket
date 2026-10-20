@@ -1,14 +1,14 @@
-#define MyAppName "Physics + Math Pocket"
+#define MyAppName "종합 지식 사전"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.5.0"
+  #define MyAppVersion "3.5.9"
 #endif
 #ifndef MyAppBuild
-  #define MyAppBuild "35001"
+  #define MyAppBuild "35901"
 #endif
 #ifndef MyAppChannel
   #define MyAppChannel "Beta"
 #endif
-#define MyAppPublisher "Physics + Math Pocket Project"
+#define MyAppPublisher "종합 지식 사전 Project"
 #define MyAppExeName "PhysicsMathPocket.exe"
 #define MyAppCopyright "Copyright © 2026 Physics + Math Pocket Project"
 
@@ -21,7 +21,7 @@ AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={localappdata}\Programs\PhysicsMathPocket
 UsePreviousAppDir=yes
-DefaultGroupName=Physics + Math Pocket
+DefaultGroupName=종합 지식 사전
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=release
@@ -41,8 +41,8 @@ CloseApplications=yes
 RestartApplications=no
 SetupLogging=yes
 VersionInfoVersion={#MyAppVersion}.{#MyAppBuild}
-VersionInfoDescription=Physics + Math Pocket 설치/업데이트 프로그램
-VersionInfoProductName=Physics + Math Pocket
+VersionInfoDescription=종합 지식 사전 설치/업데이트 프로그램
+VersionInfoProductName=종합 지식 사전
 VersionInfoProductVersion={#MyAppVersion}.{#MyAppBuild}
 VersionInfoCopyright={#MyAppCopyright}
 MinVersion=10.0.17763
@@ -60,8 +60,8 @@ Source: "SOURCES.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "DESIGN_NOTES.md"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{autoprograms}\Physics + Math Pocket"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"
-Name: "{autodesktop}\Physics + Math Pocket"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\종합 지식 사전"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"
+Name: "{autodesktop}\종합 지식 사전"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\_internal\assets\physics_pocket.ico"; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Physics + Math Pocket 실행"; WorkingDir: "{app}"; Flags: nowait postinstall skipifsilent
