@@ -1,0 +1,5 @@
+Release gate marker for the source commit. The build workflow must run all tests, compile the Windows installer, verify the SHA-256 update package, and only then publish a prerelease.
+
+Version: v3.5.9_Beta_Build35901
+Channel: Beta
+Existing user data and stable release remain unchanged.
