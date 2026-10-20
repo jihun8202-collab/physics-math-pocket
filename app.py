@@ -298,7 +298,7 @@ class Splash(tk.Toplevel):
         except Exception:
             self._logo = None
             self.canvas.create_text(width//2, 112, text="⚛∑", fill="#FFFFFF", font=("Segoe UI Symbol", 42, "bold"))
-        self.canvas.create_text(width//2, 196, text="Physics + Math Pocket", fill="#FFFFFF", font=("Segoe UI Variable Display", 24, "bold"))
+        self.canvas.create_text(width//2, 196, text="종합 지식 사전", fill="#FFFFFF", font=("Segoe UI Variable Display", 24, "bold"))
         self.canvas.create_text(width//2, 229, text=f"{APP_VERSION} · Build {APP_BUILD}", fill="#C7C9FF", font=("Segoe UI Variable Text", 11, "bold"))
         self.canvas.create_text(width//2, 258, text="지식베이스와 학습 도구를 준비하는 중", fill="#C2C6D4", font=("Malgun Gothic", 9))
         self.canvas.create_rectangle(92, 307, width-92, 313, fill="#2A2F3B", outline="")
@@ -320,7 +320,7 @@ class PhysicsPocketApp(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.withdraw()
-        self.title("Physics + Math Pocket {}{}".format(APP_VERSION, " Beta" if APP_CHANNEL == "beta" else ""))
+        self.title("종합 지식 사전 {}{}".format(APP_VERSION, " Beta" if APP_CHANNEL == "beta" else ""))
         self.geometry("1500x930")
         self.minsize(1180, 740)
 
@@ -399,6 +399,8 @@ class PhysicsPocketApp(tk.Tk):
 
     def reload_user_terms(self) -> None:
         self.terms = self.builtin_terms + self.db.all_user_terms()
+        if hasattr(self, "_concept_drills_359"):
+            del self._concept_drills_359
         self._reindex_terms()
         self._build_left_sidebar()
         self._build_right_sidebar()
@@ -498,8 +500,8 @@ class PhysicsPocketApp(tk.Tk):
         except Exception:
             tk.Label(brand, text="⚛", bg=t["accent"], fg="#FFFFFF", font=("Segoe UI Symbol", 15, "bold"), padx=7, pady=5).pack(side="left", padx=(0, 9))
         text = tk.Frame(brand, bg=t["rail"]); text.pack(side="left", fill="x", expand=True)
-        tk.Label(text, text="물리사전", bg=t["rail"], fg=t["text"], font=("Malgun Gothic", self._font(10), "bold")).pack(anchor="w")
-        tk.Label(text, text=f"Pocket · {APP_VERSION}", bg=t["rail"], fg=t["muted"], font=("Segoe UI", self._font(7))).pack(anchor="w")
+        tk.Label(text, text="종합 지식 사전", bg=t["rail"], fg=t["text"], font=("Malgun Gothic", self._font(10), "bold")).pack(anchor="w")
+        tk.Label(text, text=f"v{APP_VERSION} · 종합 학습", bg=t["rail"], fg=t["muted"], font=("Segoe UI", self._font(7))).pack(anchor="w")
 
         tk.Label(self.nav_rail, text="탐색", bg=t["rail"], fg=t["muted"], font=("Malgun Gothic", self._font(7), "bold"), anchor="w").pack(fill="x", padx=20, pady=(2, 5))
         self.nav_buttons = {}
@@ -785,7 +787,7 @@ class PhysicsPocketApp(tk.Tk):
         t = self.theme
         page_labels = {"home":"홈","dictionary":"개념 탐색","results":"검색 결과","term":"개념 상세","formulas":"공식","simulations":"시뮬레이션","calculators":"계산기","constants":"물리상수","quizzes":"문제은행","converter":"단위 변환","data":"내 데이터","updates":"업데이트 센터","help":"도움말","about":"앱 정보"}
         if hasattr(self, "header_context_var"):
-            self.header_context_var.set("국어 학습" if self.current_page == "korean" else page_labels.get(self.current_page, "Physics + Math Pocket"))
+            self.header_context_var.set("국어 학습" if self.current_page == "korean" else page_labels.get(self.current_page, "종합 지식 사전"))
         for key, button in getattr(self, "nav_buttons", {}).items():
             selected = (self.current_page == key) or (self.current_page == "term" and key == "dictionary") or (self.current_page == "results" and key == "dictionary")
             try:
@@ -1230,7 +1232,7 @@ class PhysicsPocketApp(tk.Tk):
         related = term.get("related", [])
         if related:
             lines.extend(["", "관련 개념: " + ", ".join(related)])
-        lines.extend(["", "Physics + Math Pocket {}".format(APP_VERSION)])
+        lines.extend(["", "종합 지식 사전 {}".format(APP_VERSION)])
         return "\n".join(lines)
 
     def copy_term_text(self, term: dict) -> None:
@@ -1864,10 +1866,10 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
             messagebox.showerror("업데이트 실행 실패", str(exc), parent=self)
 
     def install_local_update(self) -> None:
-        path = filedialog.askopenfilename(parent=self, title="Physics + Math Pocket 업데이트 설치 파일 선택", filetypes=[("Windows 설치 파일", "*.exe"), ("모든 파일", "*.*")])
+        path = filedialog.askopenfilename(parent=self, title="종합 지식 사전 업데이트 설치 파일 선택", filetypes=[("Windows 설치 파일", "*.exe"), ("모든 파일", "*.*")])
         if not path:
             return
-        if not messagebox.askyesno("로컬 업데이트", "선택한 설치 파일을 실행해 기존 Physics + Math Pocket을 업데이트할까요?\n\n{}\n\n직접 받은 신뢰할 수 있는 파일인지 확인하세요.".format(path), parent=self):
+        if not messagebox.askyesno("로컬 업데이트", "선택한 설치 파일을 실행해 기존 종합 지식 사전을 업데이트할까요?\n\n{}\n\n직접 받은 신뢰할 수 있는 파일인지 확인하세요.".format(path), parent=self):
             return
         try:
             launch_installer(Path(path), silent=False)
@@ -2032,7 +2034,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         latest = self.install_meta.latest_known() or {}
         latest_text = "{} · Build {}".format(latest.get("version", "확인 전"), latest.get("build", "-")) if latest else "확인 전"
         info_rows = [
-            ("제품", "Physics + Math Pocket"),
+            ("제품", "종합 지식 사전"),
             ("현재 버전", "{} {}".format(APP_VERSION, "Beta" if APP_CHANNEL == "beta" else "Stable")),
             ("현재 빌드 번호", str(APP_BUILD)),
             ("최초 설치일", self.install_meta.format_timestamp(self.install_meta.data.get("first_installed_at"))),
@@ -2043,7 +2045,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
             ("로컬 UpdateInbox", str(self._configured_local_update_dir())),
         ]
         outer=self._card(scroll.inner,padx=22,pady=19); outer.pack(fill="x",pady=6); c=self._put_card_content(outer)
-        tk.Label(c,text="Physics + Math Pocket",bg=t["surface"],fg=t["text"],font=("Segoe UI",self._font(18),"bold")).pack(anchor="w")
+        tk.Label(c,text="종합 지식 사전",bg=t["surface"],fg=t["text"],font=("Segoe UI",self._font(18),"bold")).pack(anchor="w")
         tk.Label(c,text=APP_COPYRIGHT,bg=t["surface"],fg=t["muted"],font=("Malgun Gothic",self._font(9))).pack(anchor="w",pady=(4,12))
         for key,value in info_rows:
             row=tk.Frame(c,bg=t["surface"]); row.pack(fill="x",pady=3)
@@ -2095,7 +2097,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
     def show_settings(self) -> None:
         t = self.theme
         win = tk.Toplevel(self)
-        win.title("Physics + Math Pocket 설정")
+        win.title("종합 지식 사전 설정")
         win.geometry("820x800")
         win.minsize(720, 680)
         win.configure(bg=t["bg"])
@@ -2346,7 +2348,7 @@ def run() -> None:
             root = tk.Tk()
             root.withdraw()
             messagebox.showerror(
-                "Physics + Math Pocket 오류",
+                "종합 지식 사전 오류",
                 "앱을 시작하지 못했습니다.\n\n{}\n\n로그: {}".format(exc, user_data_dir() / "physics_math_pocket.log"),
             )
             root.destroy()
