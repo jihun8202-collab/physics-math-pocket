@@ -9,6 +9,7 @@ from __future__ import annotations
 import tkinter as tk
 
 from quiz_engine import PER_CONCEPT, QuizProgress, get_bank, recommend_questions
+from concept_drills_359 import ConceptDrillIndex
 
 
 def build_concept_quiz_panel(app, parent, term):
@@ -19,7 +20,15 @@ def build_concept_quiz_panel(app, parent, term):
         progress = QuizProgress()
         app._quiz_progress_355 = progress
 
-    questions = recommend_questions(bank.for_term(term), progress)
+    curated = recommend_questions(bank.for_term(term), progress)
+    if not hasattr(app, "_concept_drills_359"):
+        app._concept_drills_359 = ConceptDrillIndex(app.terms)
+    missing = max(0, PER_CONCEPT - len(curated))
+    # Only fill absent slots with deterministic metadata reading exercises.
+    # These are visibly distinct and NEVER counted as reviewed question-bank entries.
+    reading = recommend_questions(app._concept_drills_359.for_term(term), progress,
+                                  limit=PER_CONCEPT)[:missing] if missing else []
+    questions = curated + reading
     wrapper = app._card(parent, padx=22, pady=18)
     wrapper.pack(fill="x", pady=6)
     body = app._put_card_content(wrapper)
@@ -27,11 +36,11 @@ def build_concept_quiz_panel(app, parent, term):
     title.pack(fill="x", pady=(0, 8))
     tk.Label(title, text="개념 확인문제", bg=t["surface"], fg=t["text"],
              font=("Malgun Gothic", app._font(13), "bold")).pack(side="left")
-    tk.Label(title, text=f"{len(questions)}/{PER_CONCEPT}개 준비됨", bg=t["surface"],
+    tk.Label(title, text=f"검수 문제 {len(curated)} · 카드 연습 {len(reading)}", bg=t["surface"],
              fg=t["accent2"], font=("Malgun Gothic", app._font(9), "bold")).pack(side="right")
 
     tk.Label(body,
-        text="문제 추천: 이 개념·연관 개념을 먼저 선택하며, 정답률과 오답 기록에 따라 난이도와 유형을 조정합니다. 로컬 규칙 기반으로 동작합니다.",
+        text="정식 검수 문항이 부족하면 해당 카드의 설명·분류를 묻는 자동 독해 연습으로 채웁니다. 카드 연습은 독립 검증된 문제은행 문항이 아니며, 정답률 기반 추천은 로컬에서만 동작합니다.",
         bg=t["surface"], fg=t["muted"], justify="left", anchor="w", wraplength=780,
         font=("Malgun Gothic", app._font(9))).pack(fill="x", pady=(0, 11))
 
@@ -78,8 +87,13 @@ def build_concept_quiz_panel(app, parent, term):
             font=("Malgun Gothic", app._font(9)), justify="left", anchor="w",
             wraplength=765).pack(fill="x", padx=10, pady=(6, 8))
 
+    if len(reading):
+        tk.Label(body,
+            text="카드 연습은 저장된 문구와 분류의 일치 여부를 확인하는 기초 독해 활동입니다. 새로운 물리·과학 법칙의 참거짓을 검증하지 않으며 고유 검수 문제 수에 포함되지 않습니다.",
+            bg=t["surface"], fg=t["muted"], justify="left", anchor="w", wraplength=780,
+            font=("Malgun Gothic", app._font(8))).pack(fill="x", pady=(9, 0))
     if len(questions) < PER_CONCEPT:
-        tk.Label(body, text="부족한 문항은 실제로 검증된 문제가 등록될 때 채워집니다. 같은 내용을 반복해서 문제 개수를 부풀리지 않습니다.",
-                 bg=t["surface"], fg=t["muted"], justify="left", anchor="w", wraplength=780,
-                 font=("Malgun Gothic", app._font(8))).pack(fill="x", pady=(9, 0))
+        tk.Label(body, text="일부 학습 카드에는 자료가 부족해 5문항을 완성할 수 없습니다.",
+                 bg=t["surface"], fg=t["muted"], justify="left", anchor="w",
+                 font=("Malgun Gothic", app._font(8))).pack(fill="x", pady=(6, 0))
     return wrapper
