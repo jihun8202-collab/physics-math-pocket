@@ -20,3 +20,12 @@ jobs:
       - name: All tests and frozen app build, verified update ZIP
         shell: pwsh
         run: python build_release.py --app-only
+      - name: Upload verified experimental update ZIP (not a public release)
+        uses: actions/upload-artifact@v7
+        with:
+          name: experimental-update-${{ github.sha }}
+          path: |
+            release/PhysicsMathPocket_Update_*.zip
+            release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14

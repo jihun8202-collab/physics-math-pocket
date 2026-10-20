@@ -1,0 +1,654 @@
+{
+  "schema_version": 1,
+  "release_target": "3.5.5",
+  "status": "curated-starter-only",
+  "description": "34 newly authored, source-linked questions across seven subjects; plus the existing 42 Korean questions loaded by quiz_engine.py. No claim that the 350,000 target has been met.",
+  "questions": [
+    {
+      "id": "355-linear-001",
+      "subject": "수학",
+      "concept_id": "",
+      "concept_name": "일차함수",
+      "difficulty": "기초",
+      "kind": "계산",
+      "question": "일차함수 y = 2x + 1의 기울기는?",
+      "choices": [
+        "1",
+        "2",
+        "3",
+        "-2"
+      ],
+      "answer_index": 1,
+      "explanation": "y = mx + b에서 x의 계수 m이 기울기이므로 2이다.",
+      "source": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/4-1-linear-functions",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-linear-002",
+      "subject": "수학",
+      "concept_id": "",
+      "concept_name": "일차함수",
+      "difficulty": "기초",
+      "kind": "계산",
+      "question": "함수 y = 4x + 3에서 x=0일 때 y값은?",
+      "choices": [
+        "0",
+        "3",
+        "4",
+        "7"
+      ],
+      "answer_index": 1,
+      "explanation": "x에 0을 대입하면 y = 4×0 + 3 = 3이다.",
+      "source": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/4-1-linear-functions",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-linear-003",
+      "subject": "수학",
+      "concept_id": "",
+      "concept_name": "일차함수",
+      "difficulty": "중급",
+      "kind": "적용",
+      "question": "다음 중 y = 2x + 1 위에 있는 점은?",
+      "choices": [
+        "(2, 5)",
+        "(2, 4)",
+        "(1, 4)",
+        "(0, 0)"
+      ],
+      "answer_index": 0,
+      "explanation": "x=2이면 y=5이므로 (2, 5)가 주어진 직선 위에 있다.",
+      "source": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/4-1-linear-functions",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-linear-004",
+      "subject": "수학",
+      "concept_id": "",
+      "concept_name": "일차함수",
+      "difficulty": "중급",
+      "kind": "개념 확인",
+      "question": "함수 y = -3x + 6은 x가 커질수록 어떻게 변하는가?",
+      "choices": [
+        "증가한다",
+        "감소한다",
+        "항상 일정하다",
+        "정의되지 않는다"
+      ],
+      "answer_index": 1,
+      "explanation": "기울기 -3이 음수이므로 x가 커질 때 함수값이 감소한다.",
+      "source": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/4-1-linear-functions",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-linear-005",
+      "subject": "수학",
+      "concept_id": "",
+      "concept_name": "일차함수",
+      "difficulty": "중급",
+      "kind": "자료 해석",
+      "question": "일차함수가 점 (0,1), (2,5)를 지날 때 기울기는?",
+      "choices": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer_index": 1,
+      "explanation": "기울기는 두 점의 y변화량 4를 x변화량 2로 나눈 4/2=2이다.",
+      "source": "https://openstax.org/books/algebra-and-trigonometry-2e/pages/4-1-linear-functions",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-newton-001",
+      "subject": "물리",
+      "concept_id": "",
+      "concept_name": "뉴턴 제2법칙",
+      "difficulty": "기초",
+      "kind": "계산",
+      "question": "질량 2 kg 물체에 알짜힘 6 N이 작용할 때 가속도는?",
+      "choices": [
+        "2 m/s²",
+        "3 m/s²",
+        "6 m/s²",
+        "12 m/s²"
+      ],
+      "answer_index": 1,
+      "explanation": "뉴턴 제2법칙 a=F/m에 따라 6/2=3 m/s²이다.",
+      "source": "https://openstax.org/books/college-physics-2e/pages/4-3-newtons-second-law-of-motion-concept-of-a-system",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-newton-002",
+      "subject": "물리",
+      "concept_id": "",
+      "concept_name": "뉴턴 제2법칙",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "알짜힘과 가속도의 관계를 나타내는 식은?",
+      "choices": [
+        "F=ma",
+        "F=m/a",
+        "F=a/m",
+        "F=m+a"
+      ],
+      "answer_index": 0,
+      "explanation": "알짜힘 F는 질량 m과 가속도 a의 곱이다.",
+      "source": "https://openstax.org/books/college-physics-2e/pages/4-3-newtons-second-law-of-motion-concept-of-a-system",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-newton-003",
+      "subject": "물리",
+      "concept_id": "",
+      "concept_name": "뉴턴 제2법칙",
+      "difficulty": "중급",
+      "kind": "적용",
+      "question": "질량이 일정할 때 알짜힘을 2배로 하면 가속도는?",
+      "choices": [
+        "절반",
+        "2배",
+        "변화 없음",
+        "4배"
+      ],
+      "answer_index": 1,
+      "explanation": "a=F/m이므로 질량이 일정하면 가속도는 알짜힘에 비례한다.",
+      "source": "https://openstax.org/books/college-physics-2e/pages/4-3-newtons-second-law-of-motion-concept-of-a-system",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-newton-004",
+      "subject": "물리",
+      "concept_id": "",
+      "concept_name": "뉴턴 제2법칙",
+      "difficulty": "중급",
+      "kind": "추론",
+      "question": "관성 기준계에서 알짜힘이 0인 물체는 어떻게 움직이는가?",
+      "choices": [
+        "반드시 멈춘다",
+        "반드시 빨라진다",
+        "가속도 0으로 운동 상태를 유지한다",
+        "원운동을 시작한다"
+      ],
+      "answer_index": 2,
+      "explanation": "알짜힘이 0이면 가속도가 0이므로 정지하거나 일정 속도로 직선 운동을 유지한다.",
+      "source": "https://openstax.org/books/college-physics-2e/pages/4-3-newtons-second-law-of-motion-concept-of-a-system",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-newton-005",
+      "subject": "물리",
+      "concept_id": "",
+      "concept_name": "뉴턴 제2법칙",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "힘의 SI 유도 단위인 1 N의 표현은?",
+      "choices": [
+        "1 kg·m/s²",
+        "1 kg·m/s",
+        "1 kg/s²",
+        "1 kg·m²/s"
+      ],
+      "answer_index": 0,
+      "explanation": "1뉴턴은 1kg 물체에 1m/s²의 가속도를 만드는 힘이다.",
+      "source": "https://openstax.org/books/college-physics-2e/pages/4-3-newtons-second-law-of-motion-concept-of-a-system",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-atom-001",
+      "subject": "화학",
+      "concept_id": "",
+      "concept_name": "원자",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "원자번호를 결정하는 입자는?",
+      "choices": [
+        "전자",
+        "양성자",
+        "중성자",
+        "광자"
+      ],
+      "answer_index": 1,
+      "explanation": "원자번호 Z는 원자핵 안의 양성자 수로 결정된다.",
+      "source": "https://openstax.org/books/chemistry-atoms-first-2e/pages/2-3-atomic-structure-and-symbolism",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-atom-002",
+      "subject": "화학",
+      "concept_id": "",
+      "concept_name": "원자",
+      "difficulty": "기초",
+      "kind": "계산",
+      "question": "양성자 11개, 중성자 12개인 원자의 질량수는?",
+      "choices": [
+        "11",
+        "12",
+        "23",
+        "24"
+      ],
+      "answer_index": 2,
+      "explanation": "질량수는 양성자 수와 중성자 수의 합이므로 11+12=23이다.",
+      "source": "https://openstax.org/books/chemistry-atoms-first-2e/pages/2-3-atomic-structure-and-symbolism",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-atom-003",
+      "subject": "화학",
+      "concept_id": "",
+      "concept_name": "원자",
+      "difficulty": "기초",
+      "kind": "계산",
+      "question": "전기적으로 중성인 원자에 양성자 6개가 있으면 전자는 몇 개인가?",
+      "choices": [
+        "5",
+        "6",
+        "7",
+        "12"
+      ],
+      "answer_index": 1,
+      "explanation": "중성 원자에서는 양전하의 양성자와 음전하의 전자 수가 같다.",
+      "source": "https://openstax.org/books/chemistry-atoms-first-2e/pages/2-3-atomic-structure-and-symbolism",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-atom-004",
+      "subject": "화학",
+      "concept_id": "",
+      "concept_name": "원자",
+      "difficulty": "중급",
+      "kind": "개념 확인",
+      "question": "한 원소의 동위원소끼리 다른 입자 수는 일반적으로?",
+      "choices": [
+        "양성자 수",
+        "중성자 수",
+        "양성자와 전자 수 모두",
+        "원자번호"
+      ],
+      "answer_index": 1,
+      "explanation": "동위원소는 같은 원소로서 양성자 수가 같고 중성자 수가 다르다.",
+      "source": "https://openstax.org/books/chemistry-atoms-first-2e/pages/2-3-atomic-structure-and-symbolism",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-atom-005",
+      "subject": "화학",
+      "concept_id": "",
+      "concept_name": "원자",
+      "difficulty": "중급",
+      "kind": "계산",
+      "question": "양성자 11개, 전자 10개인 이온의 전하량(기본전하 단위)은?",
+      "choices": [
+        "+1",
+        "-1",
+        "+2",
+        "0"
+      ],
+      "answer_index": 0,
+      "explanation": "양성자의 양전하 11개에서 전자의 음전하 10개를 빼면 +1이다.",
+      "source": "https://openstax.org/books/chemistry-atoms-first-2e/pages/2-3-atomic-structure-and-symbolism",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-cell-001",
+      "subject": "생명과학",
+      "concept_id": "",
+      "concept_name": "세포",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "진핵세포에서 일반적으로 DNA를 담고 있는 막성 세포 소기관은?",
+      "choices": [
+        "리보솜",
+        "핵",
+        "골지체",
+        "미토콘드리아 외막"
+      ],
+      "answer_index": 1,
+      "explanation": "진핵세포에서 세포핵은 DNA를 저장하는 주요 소기관이다.",
+      "source": "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-cell-002",
+      "subject": "생명과학",
+      "concept_id": "",
+      "concept_name": "세포",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "세포호흡 과정에서 ATP 생산에 중요한 세포 소기관은?",
+      "choices": [
+        "미토콘드리아",
+        "세포벽",
+        "액포",
+        "핵소체"
+      ],
+      "answer_index": 0,
+      "explanation": "미토콘드리아는 세포호흡을 통해 ATP를 생산하는 데 핵심 역할을 한다.",
+      "source": "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-cell-003",
+      "subject": "생명과학",
+      "concept_id": "",
+      "concept_name": "세포",
+      "difficulty": "중급",
+      "kind": "적용",
+      "question": "세포막의 대표 기능은?",
+      "choices": [
+        "유전 암호 전체 저장",
+        "물질의 세포 안팎 이동 조절",
+        "DNA 복제만 담당",
+        "빛을 직접 반사"
+      ],
+      "answer_index": 1,
+      "explanation": "세포막은 세포 안팎을 구분하고 여러 물질의 출입을 선택적으로 조절한다.",
+      "source": "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-cell-004",
+      "subject": "생명과학",
+      "concept_id": "",
+      "concept_name": "세포",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "리보솜의 직접적인 주요 기능은?",
+      "choices": [
+        "단백질 합성",
+        "지방 저장",
+        "염색체 분리만 수행",
+        "광합성"
+      ],
+      "answer_index": 0,
+      "explanation": "리보솜은 mRNA 정보를 바탕으로 단백질을 합성하는 곳이다.",
+      "source": "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-cell-005",
+      "subject": "생명과학",
+      "concept_id": "",
+      "concept_name": "세포",
+      "difficulty": "중급",
+      "kind": "자료 해석",
+      "question": "전형적인 식물세포에서 빛에너지를 이용해 광합성을 수행하는 소기관은?",
+      "choices": [
+        "리보솜",
+        "미토콘드리아",
+        "엽록체",
+        "골지체"
+      ],
+      "answer_index": 2,
+      "explanation": "엽록체는 엽록소 등 광합성 색소를 이용해 빛에너지를 화학에너지로 전환한다.",
+      "source": "https://openstax.org/books/biology-2e/pages/4-3-eukaryotic-cells",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-seismic-001",
+      "subject": "지구과학",
+      "concept_id": "",
+      "concept_name": "지진파",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "관측소에서 일반적으로 먼저 기록되는 실체파는?",
+      "choices": [
+        "P파",
+        "S파",
+        "표면파만",
+        "반사파만"
+      ],
+      "answer_index": 0,
+      "explanation": "P파는 S파보다 빠르게 전파되므로 일반적으로 더 먼저 도착한다.",
+      "source": "https://www.usgs.gov/programs/earthquake-hazards/science-earthquakes",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-seismic-002",
+      "subject": "지구과학",
+      "concept_id": "",
+      "concept_name": "지진파",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "S파의 진동 방향은 진행 방향에 대해 일반적으로?",
+      "choices": [
+        "평행",
+        "수직",
+        "아무런 진동이 없다",
+        "항상 지구 중심 방향"
+      ],
+      "answer_index": 1,
+      "explanation": "S파는 입자 진동이 파의 진행 방향과 수직인 횡파이다.",
+      "source": "https://www.usgs.gov/programs/earthquake-hazards/science-earthquakes",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-seismic-003",
+      "subject": "지구과학",
+      "concept_id": "",
+      "concept_name": "지진파",
+      "difficulty": "중급",
+      "kind": "적용",
+      "question": "같은 지역의 지진에서 관측소가 진앙에서 멀어지면 P파와 S파 도착 시각 차이는 보통?",
+      "choices": [
+        "커진다",
+        "항상 0이 된다",
+        "반드시 작아진다",
+        "지진 크기와 무관하게 일정하다"
+      ],
+      "answer_index": 0,
+      "explanation": "P파와 S파의 속도 차이 때문에 거리가 멀수록 도달 시각 차이는 대체로 증가한다.",
+      "source": "https://www.usgs.gov/programs/earthquake-hazards/science-earthquakes",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-seismic-004",
+      "subject": "지구과학",
+      "concept_id": "",
+      "concept_name": "지진파",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "지진파 도착 시각을 기록하는 관측 장치는?",
+      "choices": [
+        "온도계",
+        "풍속계",
+        "지진계",
+        "기압계"
+      ],
+      "answer_index": 2,
+      "explanation": "지진계는 지면 진동을 기록해 P파·S파의 도착 시각 등을 분석하도록 한다.",
+      "source": "https://www.usgs.gov/programs/earthquake-hazards/science-earthquakes",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-seismic-005",
+      "subject": "지구과학",
+      "concept_id": "",
+      "concept_name": "지진파",
+      "difficulty": "중급",
+      "kind": "추론",
+      "question": "관측소 한 곳에서 P파·S파 도착 시간 차이만 알면 무엇을 우선 추정하는가?",
+      "choices": [
+        "진앙까지의 대략적인 거리",
+        "진앙의 정확한 방향",
+        "지진을 일으킨 단층 전체 길이",
+        "다음 지진 발생 날짜"
+      ],
+      "answer_index": 0,
+      "explanation": "P파와 S파 도착 시각의 차이로 관측소에서 진앙까지의 거리를 추정할 수 있지만 방향은 한 곳만으로 정해지지 않는다.",
+      "source": "https://www.usgs.gov/programs/earthquake-hazards/science-earthquakes",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-sun-001",
+      "subject": "천문학",
+      "concept_id": "",
+      "concept_name": "태양",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "태양은 어떤 종류의 천체인가?",
+      "choices": [
+        "행성",
+        "위성",
+        "항성",
+        "혜성"
+      ],
+      "answer_index": 2,
+      "explanation": "태양은 스스로 에너지를 방출하는 태양계 중심의 항성이다.",
+      "source": "https://science.nasa.gov/sun/",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-sun-002",
+      "subject": "천문학",
+      "concept_id": "",
+      "concept_name": "태양",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "현재 태양계에 속한 주요 행성의 수는?",
+      "choices": [
+        "7개",
+        "8개",
+        "9개",
+        "10개"
+      ],
+      "answer_index": 1,
+      "explanation": "국제천문연맹 분류에 따라 태양계의 행성은 8개다.",
+      "source": "https://science.nasa.gov/sun/",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-sun-003",
+      "subject": "천문학",
+      "concept_id": "",
+      "concept_name": "태양",
+      "difficulty": "중급",
+      "kind": "적용",
+      "question": "행성들이 태양 주위를 도는 데 가장 중요한 작용은?",
+      "choices": [
+        "태양의 중력",
+        "태양풍의 압력만",
+        "지구 자기장",
+        "은하수의 가시광선"
+      ],
+      "answer_index": 0,
+      "explanation": "태양의 중력이 태양계 행성들의 궤도 운동에 핵심적인 역할을 한다.",
+      "source": "https://science.nasa.gov/sun/",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-sun-004",
+      "subject": "천문학",
+      "concept_id": "",
+      "concept_name": "태양",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "달이 밤에 밝게 보이는 주된 이유는?",
+      "choices": [
+        "핵융합으로 빛을 생성",
+        "태양빛을 반사",
+        "지구의 열을 받아 빛남",
+        "스스로 형광을 냄"
+      ],
+      "answer_index": 1,
+      "explanation": "달빛은 달 표면이 반사하는 햇빛으로 설명된다.",
+      "source": "https://science.nasa.gov/sun/",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-sun-005",
+      "subject": "천문학",
+      "concept_id": "",
+      "concept_name": "태양",
+      "difficulty": "중급",
+      "kind": "자료 해석",
+      "question": "태양계의 행성 중 태양에서 세 번째 궤도에 있는 행성은?",
+      "choices": [
+        "금성",
+        "화성",
+        "지구",
+        "수성"
+      ],
+      "answer_index": 2,
+      "explanation": "태양에서 바깥으로 수성, 금성, 지구 순서로 배열된다.",
+      "source": "https://science.nasa.gov/sun/",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-pos-001",
+      "subject": "국어",
+      "concept_id": "korean-316-word-class",
+      "concept_name": "품사",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "'학교'의 품사는 무엇인가?",
+      "choices": [
+        "명사",
+        "형용사",
+        "동사",
+        "조사"
+      ],
+      "answer_index": 0,
+      "explanation": "'학교'는 사물·장소의 이름을 나타내는 명사이다.",
+      "source": "https://www.korean.go.kr/front/onlineQna/onlineQnaView.do?mn_id=&pageIndex=1&qna_seq=336203",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-pos-002",
+      "subject": "국어",
+      "concept_id": "korean-316-word-class",
+      "concept_name": "품사",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "'철수가 달린다'에서 '달린다'의 품사는?",
+      "choices": [
+        "관형사",
+        "동사",
+        "조사",
+        "수사"
+      ],
+      "answer_index": 1,
+      "explanation": "기본형 '달리다'는 움직임을 나타내는 동사이다.",
+      "source": "https://www.korean.go.kr/front/onlineQna/onlineQnaView.do?mn_id=&pageIndex=1&qna_seq=336203",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-pos-003",
+      "subject": "국어",
+      "concept_id": "korean-316-word-class",
+      "concept_name": "품사",
+      "difficulty": "기초",
+      "kind": "개념 확인",
+      "question": "'하늘이 푸르다'에서 '푸르다'의 품사는?",
+      "choices": [
+        "동사",
+        "부사",
+        "형용사",
+        "감탄사"
+      ],
+      "answer_index": 2,
+      "explanation": "'푸르다'는 성질이나 상태를 나타내는 형용사이다.",
+      "source": "https://www.korean.go.kr/front/onlineQna/onlineQnaView.do?mn_id=&pageIndex=1&qna_seq=336203",
+      "review_status": "source_checked"
+    },
+    {
+      "id": "355-pos-004",
+      "subject": "국어",
+      "concept_id": "korean-316-word-class",
+      "concept_name": "품사",
+      "difficulty": "중급",
+      "kind": "적용",
+      "question": "'와! 정말 멋지다'의 '와!'는 학교 문법에서 어떤 품사인가?",
+      "choices": [
+        "감탄사",
+        "관형사",
+        "조사",
+        "대명사"
+      ],
+      "answer_index": 0,
+      "explanation": "'와!'는 놀람 등의 느낌을 나타내는 감탄사이다.",
+      "source": "https://www.korean.go.kr/front/onlineQna/onlineQnaView.do?mn_id=&pageIndex=1&qna_seq=336203",
+      "review_status": "source_checked"
+    }
+  ]
+}

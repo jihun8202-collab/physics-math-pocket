@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "release_target": "3.5.5",
+  "status": "development-not-released",
+  "notes": "Targets are acceptance criteria, never a claim of installed or verified inventory. Existing 50,000 terms include 47,637 extended index cards. Count independent source-backed entries separately from generated indexes.",
+  "subject_targets": {
+    "수학": 10000,
+    "물리": 15000,
+    "화학": 20000,
+    "생명과학": 9000,
+    "지구과학": 9500,
+    "천문학": 9000,
+    "국어": 50000
+  },
+  "total_term_target": 122500,
+  "simulation_target": {
+    "scenarios": 5000,
+    "kind": "distinct selectable parameter scenarios",
+    "independent_models": 50,
+    "note": "Currently 50 model families x 100 conditions; a scenario is not an independent simulator. Preserve the core 100 legacy simulations and body laboratory."
+  },
+  "korean_topics": [
+    "일반 어휘",
+    "품사·형태소·음운·문장 문법",
+    "맞춤법·표준 발음",
+    "사자성어",
+    "속담",
+    "관용구",
+    "고유어·한자어",
+    "문학",
+    "읽기",
+    "쓰기",
+    "듣기·말하기",
+    "매체"
+  ],
+  "integrity_requirements": [
+    "existing 50,000 source IDs preserved",
+    "unique item IDs and source provenance",
+    "no fabricated definitions or padded entries",
+    "separate detailed content and derived indexes",
+    "licence and attribution tracked per dataset",
+    "favorites, notes, settings and user SQLite data preserved"
+  ],
+  "visual_requirements": [
+    "Pocket Glass UI",
+    "One UI and Fluent inspired, non-identical",
+    "light and dark, density, animation and FPS controls",
+    "responsive Windows settings and accessible contrast"
+  ],
+  "delivery_requirements": [
+    "Windows installer",
+    "GitHub Actions CI and release",
+    "release version and build tag match",
+    "SHA-256 verification",
+    "in-place update and rollback",
+    "no premature 3.5.5 release"
+  ],
+  "quiz_target": {
+    "per_subject": 50000,
+    "total": 350000,
+    "questions_per_concept": 5,
+    "difficulties": [
+      "기초",
+      "중급",
+      "심화",
+      "최상위"
+    ],
+    "types": [
+      "개념 확인",
+      "계산",
+      "적용",
+      "자료 해석",
+      "추론"
+    ],
+    "recommendation": "local rule-based adaptive question ranker (not a trained AI model)",
+    "no_unverified_padding": true,
+    "source_required": true
+  }
+}

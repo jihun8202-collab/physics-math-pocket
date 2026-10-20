@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 APP_NAME = "PhysicsMathPocket"
-APP_VERSION = "3.5.0"
-APP_BUILD = 35001
+APP_VERSION = "3.5.9"
+APP_BUILD = 35901
 APP_CHANNEL = "beta"
 APP_COPYRIGHT = "Copyright © 2026 Physics + Math Pocket Project"
 
@@ -105,6 +105,26 @@ def load_terms() -> List[dict]:
     terms = payload.get("terms", [])
     if not isinstance(terms, list) or not terms:
         raise ValueError("수학·과학 개념 데이터가 비어 있습니다.")
+    # Keep the original term corpus unchanged; load a separately attributed extension.
+    terms = list(terms)
+    extra_path = resource_path("data/korean_import_355.json")
+    if extra_path.exists():
+        with extra_path.open("r", encoding="utf-8") as handle:
+            supplement = json.load(handle)
+        extras = supplement.get("terms") if isinstance(supplement, dict) else None
+        if not isinstance(supplement, dict) or supplement.get("schema_version") != 1 or not isinstance(extras, list):
+            raise ValueError("국어 확장 사전의 형식이 올바르지 않습니다.")
+        if supplement.get("imported_count") != len(extras):
+            raise ValueError("국어 확장 사전의 항목 수가 일치하지 않습니다.")
+        known_ids = {t["id"] for t in terms}
+        for entry in extras:
+            if not isinstance(entry, dict) or entry.get("subject") != "국어":
+                raise ValueError("국어 확장 사전에 올바르지 않은 항목이 있습니다.")
+            key = entry.get("id")
+            if not isinstance(key, str) or not key or key in known_ids:
+                raise ValueError("국어 확장 사전에 중복되거나 잘못된 ID가 있습니다.")
+            known_ids.add(key)
+            terms.append(entry)
     return [_prepare_term_for_search(t) for t in terms]
 
 def load_sources() -> List[dict]:

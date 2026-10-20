@@ -1,0 +1,1 @@
+Explicit second deployment request after duplicate-release preflight fix. A pre-existing tag will not be overwritten. Only publish after full build tests, installer, and hash verification succeed.

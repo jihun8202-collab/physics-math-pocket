@@ -1,0 +1,68 @@
+name: Publish vetted v3.5.9 Beta
+on:
+  push:
+    branches:
+      - feature/v3.5.9-all-concept-quiz
+permissions:
+  contents: read
+concurrency:
+  group: publish-v3.5.9-beta
+  cancel-in-progress: false
+jobs:
+  publish:
+    # Explicit release marker only; ordinary feature-branch commits never deploy.
+    if: contains(github.event.head_commit.message, '[publish-v359-beta]')
+    runs-on: windows-2025
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: v3.5.9_Beta_Build35901
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      # gh release create will reject an existing tag/release instead of overwriting assets.
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco install innosetup --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup installation failed.' }
+      - name: Verify repository destination
+        shell: pwsh
+        run: python tools/verify_repository.py --repository $env:GH_REPO
+      - name: Run complete regression tests, build signed-hash update ZIP and installer
+        shell: pwsh
+        run: python build_release.py --expected-tag $env:RELEASE_TAG
+      - name: Check release assets before publication
+        shell: pwsh
+        run: |
+          $expected = @(
+            "PhysicsMathPocket_Setup_3.5.9_Beta_Build35901.exe",
+            "PhysicsMathPocket_Update_3.5.9_Beta_Build35901.zip",
+            "SHA256SUMS.txt"
+          )
+          foreach ($name in $expected) {
+            $path = Join-Path release $name
+            if (!(Test-Path -LiteralPath $path)) { throw "Missing required release file: $name" }
+            if ((Get-Item -LiteralPath $path).Length -le 0) { throw "Empty release file: $name" }
+          }
+      - name: Attach tested files to action run
+        uses: actions/upload-artifact@v7
+        with:
+          name: vetted-v3.5.9-beta
+          path: release/*
+          if-no-files-found: error
+      - name: Publish GitHub Releases prerelease (auto updater source)
+        shell: pwsh
+        run: |
+          $assets = @(Get-ChildItem -LiteralPath release -File | ForEach-Object { $_.FullName })
+          gh release create $env:RELEASE_TAG @assets --target $env:GITHUB_SHA --title "종합 지식 사전 v3.5.9 Beta (Build 35901)" --notes-file RELEASE_NOTES_359.md --prerelease
+          if ($LASTEXITCODE -ne 0) { throw "GitHub beta release creation failed" }
+          gh release view $env:RELEASE_TAG --json tagName,isPrerelease,assets
+          if ($LASTEXITCODE -ne 0) { throw "Unable to verify published release" }
