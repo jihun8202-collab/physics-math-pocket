@@ -12,7 +12,7 @@ from core import load_json, normalize, hangul_initials, is_initial_query
 CATEGORIES = ("전체", "문법", "문학", "읽기", "쓰기", "듣기·말하기", "매체", "어휘", "관용구", "속담", "사자성어", "맞춤법", "방언", "고어", "기타")
 
 
-def filter_korean_terms(terms: Iterable[dict], query: str = "", category: str = "전체", limit: int | None = 300) -> list:
+def filter_korean_terms(terms: Iterable[dict], query: str = "", category: str = "전체", limit: Optional[int] = 300) -> list:
     """Search full explanations, examples, cautions, names and Korean initials."""
     q = normalize(query)
     initials = is_initial_query(query) if q else False
