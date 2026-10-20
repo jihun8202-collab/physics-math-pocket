@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source_name": "국립국어원 개방형 사전(우리말샘)",
+  "source_url": "https://www.data.go.kr/data/15019347/openapi.do",
+  "attribution": "자료 출처: 문화체육관광부 국립국어원, 개방형 사전(우리말샘), 공공누리 제1유형(출처표시)",
+  "license": "KOGL-1",
+  "imported_count": 0,
+  "terms": []
+}
