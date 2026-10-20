@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import math
 import sqlite3
+import unicodedata
 from collections import Counter
 from functools import lru_cache
 from pathlib import Path
@@ -45,7 +46,7 @@ def validate_question(item: dict) -> dict:
         raise ValueError("Expected 2 to 5 options")
     if any(not isinstance(choice, str) or not choice.strip() for choice in choices):
         raise ValueError("Empty answer choice")
-    if len({normalize(choice) for choice in choices}) != len(choices):
+    if len({" ".join(unicodedata.normalize("NFKC", choice).casefold().split()) for choice in choices}) != len(choices):
         raise ValueError("Duplicate answer choice")
     idx = q.get("answer_index")
     if type(idx) is not int or idx not in range(len(choices)):
