@@ -54,5 +54,26 @@
     "SHA-256 verification",
     "in-place update and rollback",
     "no premature 3.5.5 release"
-  ]
+  ],
+  "quiz_target": {
+    "per_subject": 50000,
+    "total": 350000,
+    "questions_per_concept": 5,
+    "difficulties": [
+      "기초",
+      "중급",
+      "심화",
+      "최상위"
+    ],
+    "types": [
+      "개념 확인",
+      "계산",
+      "적용",
+      "자료 해석",
+      "추론"
+    ],
+    "recommendation": "local rule-based adaptive question ranker (not a trained AI model)",
+    "no_unverified_padding": true,
+    "source_required": true
+  }
 }
