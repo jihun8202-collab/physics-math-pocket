@@ -438,7 +438,7 @@ class EnhancedSimulator(tk.Frame):
             c.create_rectangle(mass[0] - 17, mass[1] - 17, mass[0] + 17, mass[1] + 17, fill=t["accent"], outline=t["surface"], width=2)
             self._velocity_arrow(*mass, q.vx, 0)
             damping = p.spring_damping / (2 * math.sqrt(p.stiffness * p.mass))
-            regime = "진동하며 감쇠" if damping < 1 - 1e-6 else "과감쇠" if damping > 1 + 1e-6 else "임계 감쇠"
+            regime = "감쇠 없음 · 진폭 유지" if p.spring_damping == 0 else "진동하며 감쇠" if damping < 1 - 1e-6 else "과감쇠" if damping > 1 + 1e-6 else "임계 감쇠"
             self.legend.configure(text="x: 평형 위치에서 잰 수평 변위 (m) · 용수철 모양은 이해를 돕는 표현 · 파란 화살표: 속도 방향")
             text = f"시간 {q.time:.3f} s   |   변위 {q.x:.3f} m   |   속도 {q.vx:.3f} m/s\n역학적 에너지 {q.energy:.3f} J   |   저항으로 잃은 에너지 {lost:.3f} J\n감쇠비 ζ {damping:.3f} · {regime}"
         if self.kind != "force":

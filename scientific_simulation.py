@@ -12,6 +12,8 @@ class ScientificGraphSimulator(tk.Frame):
     def __init__(self, master, sim_id, theme, fps=30):
         super().__init__(master,bg=theme['surface'])
         self.sim_id,self.theme,self.spec=sim_id,theme,SCENARIOS[sim_id]
+        self.fps=60 if fps>=60 else 30
+        self._frame_delay_ms=max(10,round(1000/self.fps))
         self.running=False; self._job=None; self._last_clock=0; self.t=0
         self._vars={}; self._entries={}; self._cells=[]; self._ready=False
         self._data=[]; self._baseline=[]
@@ -133,7 +135,7 @@ class ScientificGraphSimulator(tk.Frame):
     def start(self):
         if self.running:return
         if self.probe.get()>=1:self.probe.set(0)
-        self.running=True; self._last_clock=time.perf_counter(); self.play_btn.configure(text='❚❚ 일시정지'); self._job=self.after(33,self._tick)
+        self.running=True; self._last_clock=time.perf_counter(); self.play_btn.configure(text='❚❚ 일시정지'); self._job=self.after(self._frame_delay_ms,self._tick)
     def _tick(self):
         self._job=None
         if not self.running:return
@@ -141,7 +143,7 @@ class ScientificGraphSimulator(tk.Frame):
         if elapsed>2:self.stop();return
         self.probe.set(min(1,self.probe.get()+elapsed/10)); self.redraw()
         if self.probe.get()>=1:self.stop()
-        else:self._job=self.after(33,self._tick)
+        else:self._job=self.after(self._frame_delay_ms,self._tick)
     def stop(self):
         self.running=False
         if self._job:

@@ -127,6 +127,9 @@ def build_app() -> None:
     exe = ROOT / "dist" / "PhysicsMathPocket" / "PhysicsMathPocket.exe"
     if not exe.exists():
         raise BuildError("PyInstaller가 끝났지만 {}가 없습니다.".format(exe))
+    # Setup and ZIP upgrades must carry the same documentation payload.
+    for name in ("README_KO.md", "SOURCES.md", "DESIGN_NOTES.md"):
+        shutil.copy2(ROOT / name, exe.parent / name)
     write("앱 완성: {}".format(exe))
 
 
@@ -164,7 +167,7 @@ def build_update_package() -> Path:
     target = release_dir / ("PhysicsMathPocket_Update_" + RELEASE_LABEL + ".zip")
     files = []
     for path in sorted(app_dir.rglob("*")):
-        if path.is_file():
+        if path.is_file() and path.name != ".pmp-files.json":
             rel = path.relative_to(app_dir).as_posix()
             files.append({"path": rel, "sha256": _sha256(path), "size": path.stat().st_size})
     manifest = {"product":"Physics + Math Pocket","version":APP_VERSION,"build":APP_BUILD,"channel":APP_CHANNEL,"format":1,"files":files}
@@ -173,6 +176,13 @@ def build_update_package() -> Path:
         zf.writestr("update-manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2))
         for entry in files:
             zf.write(app_dir / entry["path"], "payload/" + entry["path"])
+    # Include the inventory in first-time Setup installs as well as ZIP updates.
+    # The updater owns this file, so it is intentionally not part of the ZIP.
+    (app_dir / ".pmp-files.json").write_text(
+        json.dumps({"version": APP_VERSION, "build": APP_BUILD,
+                    "files": [entry["path"] for entry in files]}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
     write("무설치 업데이트 패키지 완성: {}".format(target))
     write("Update package SHA-256: {}".format(_sha256(target)))
     return target
@@ -182,6 +192,15 @@ def build_installer() -> None:
     exe = ROOT / "dist" / "PhysicsMathPocket" / "PhysicsMathPocket.exe"
     if not exe.exists():
         raise BuildError("먼저 앱을 빌드해야 합니다: {}".format(exe))
+    inventory_path = exe.parent / ".pmp-files.json"
+    try:
+        inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        raise BuildError("설치 파일에 필요한 앱 파일 목록이 없습니다. 먼저 전체 빌드를 실행하세요.")
+    if (inventory.get("version"), inventory.get("build")) != (APP_VERSION, APP_BUILD):
+        raise BuildError("앱 파일 목록의 버전이 현재 릴리스와 다릅니다. 먼저 전체 빌드를 실행하세요.")
+    if not (exe.parent / "PhysicsMathPocketUpdater.exe").is_file():
+        raise BuildError("설치 프로그램에 포함할 업데이트 에이전트가 없습니다.")
     iscc = find_iscc()
     if not iscc:
         raise BuildError(

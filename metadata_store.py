@@ -60,6 +60,7 @@ class InstallMetadataStore:
     def _load_and_migrate(self) -> Dict[str, Any]:
         now = _now_iso()
         data = self._read()
+        first_metadata = not data
         if not data:
             data = {
                 "first_installed_at": now,
@@ -121,7 +122,20 @@ class InstallMetadataStore:
         if stamp.get("first_installed_at"):
             data["first_installed_at"] = stamp["first_installed_at"]
         if stamp.get("last_updated_at"):
-            data["last_updated_at"] = stamp["last_updated_at"]
+            matching_installer = (
+                str(stamp.get("installer_version")) == self.current_version
+                and str(stamp.get("installer_build")) == str(self.current_build)
+            )
+            use_stamp = first_metadata
+            if matching_installer and not use_stamp:
+                try:
+                    installed_at = dt.datetime.fromisoformat(str(stamp["last_updated_at"])).astimezone()
+                    recorded_at = dt.datetime.fromisoformat(str(data["last_updated_at"])).astimezone()
+                    use_stamp = installed_at >= recorded_at
+                except (ValueError, TypeError, KeyError):
+                    pass
+            if use_stamp:
+                data["last_updated_at"] = stamp["last_updated_at"]
         if stamp.get("installer_version"):
             data["installer_version"] = stamp["installer_version"]
         if stamp.get("installer_build"):
@@ -151,15 +165,8 @@ class InstallMetadataStore:
         return value if isinstance(value, list) else []
 
     def reset_for_rollback(self, target: Dict[str, Any]) -> None:
-        """Forget version-specific update history before applying an older package."""
-        self.data["update_history"] = []
-        self.data["latest_known"] = None
-        self.data["pending_update"] = dict(target)
-        self.data["pending_update"]["kind"] = "rollback"
-        self.data["previous_version"] = None
-        self.data["previous_build"] = None
-        self.data["update_count"] = 0
-        self._write()
+        """Record intent only. The helper clears history after a successful apply."""
+        self.record_update_started(target, kind="rollback")
 
     @staticmethod
     def format_timestamp(value: Any) -> str:

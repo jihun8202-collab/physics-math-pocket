@@ -40,15 +40,54 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
+UPDATER_SETTINGS = frozenset({
+    "update_repository", "update_manifest_url", "update_source_mode",
+    "update_channel", "update_local_dir", "check_updates_on_startup",
+    "prefer_seamless_update", "update_defaults_revision",
+})
+ROLLBACK_STATE_FILES = (
+    "recent_searches.json", "favorites.json", "term_notes.json", "database",
+    "settings_v3.json", "install_metadata.json", "install_state.ini",
+)
+
+
 def clear_rollback_user_data(data_dir: Path) -> None:
-    """Clear version-specific state while leaving updater settings available."""
-    data_dir = Path(data_dir)
-    for name in ("recent_searches.json", "favorites.json", "term_notes.json"):
-        try:
-            (data_dir / name).unlink(missing_ok=True)
-        except OSError:
-            pass
-    shutil.rmtree(data_dir / "database", ignore_errors=True)
+    """Reset app state atomically; retain only the explicit updater settings.
+
+    Diagnostics and unrelated user-exported files are not version-specific state.
+    A failed move or settings write restores every state file before returning.
+    """
+    data_dir = Path(data_dir).resolve()
+    if not data_dir.exists():
+        return
+    settings_path = contained_path(data_dir, "settings_v3.json")
+    retained = {}
+    if settings_path.is_file():
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+        if isinstance(settings, dict):
+            retained = {key: settings[key] for key in UPDATER_SETTINGS if key in settings}
+    # Resolve every known target before moving any directory.
+    targets = [(name, contained_path(data_dir, name)) for name in ROLLBACK_STATE_FILES]
+    backup = Path(tempfile.mkdtemp(prefix=".pmp-rollback-", dir=data_dir)).resolve()
+    moved = []
+    can_remove_backup = False
+    temporary_settings = backup / "new-settings.json"
+    try:
+        temporary_settings.write_text(json.dumps(retained, ensure_ascii=False, indent=2), encoding="utf-8")
+        for name, path in targets:
+            if path.exists():
+                os.replace(path, backup / name)
+                moved.append(name)
+        os.replace(temporary_settings, settings_path)
+        can_remove_backup = True
+    except Exception:
+        for name in reversed(moved):
+            os.replace(backup / name, contained_path(data_dir, name))
+        can_remove_backup = True
+        raise
+    finally:
+        if can_remove_backup and backup.parent == data_dir and backup.name.startswith(".pmp-rollback-"):
+            shutil.rmtree(backup, ignore_errors=True)
 
 
 def wait_for_pid(pid: int, timeout: float = 60.0) -> None:
@@ -57,19 +96,36 @@ def wait_for_pid(pid: int, timeout: float = 60.0) -> None:
     deadline = time.time() + timeout
     if os.name == "nt":
         import ctypes
+        from ctypes import wintypes
+        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        kernel.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        kernel.WaitForSingleObject.restype = wintypes.DWORD
+        kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        kernel.CloseHandle.restype = wintypes.BOOL
         SYNCHRONIZE = 0x00100000
-        handle = ctypes.windll.kernel32.OpenProcess(SYNCHRONIZE, False, pid)
+        handle = kernel.OpenProcess(SYNCHRONIZE, False, pid)
         if handle:
             remaining = max(0, int((deadline - time.time()) * 1000))
-            ctypes.windll.kernel32.WaitForSingleObject(handle, remaining)
-            ctypes.windll.kernel32.CloseHandle(handle)
+            try:
+                result = kernel.WaitForSingleObject(handle, remaining)
+                if result != 0:
+                    raise TimeoutError("앱이 아직 종료되지 않아 업데이트를 적용하지 않았습니다.")
+            finally:
+                kernel.CloseHandle(handle)
             return
+        error = ctypes.get_last_error()
+        if error == 87:  # ERROR_INVALID_PARAMETER: the PID no longer exists.
+            return
+        raise ctypes.WinError(error)
     while time.time() < deadline:
         try:
             os.kill(pid, 0)
         except OSError:
             return
         time.sleep(0.25)
+    raise TimeoutError("앱이 아직 종료되지 않아 업데이트를 적용하지 않았습니다.")
 
 
 def safe_extract(zf: zipfile.ZipFile, target: Path) -> None:
@@ -105,7 +161,7 @@ def verify_payload(staging: Path, manifest: dict) -> list[str]:
     return rels
 
 
-def apply_update(package: Path, install_dir: Path) -> tuple[str, int]:
+def apply_update(package: Path, install_dir: Path, *, rollback_data_dir: Path = None) -> tuple[str, int]:
     work = Path(tempfile.mkdtemp(prefix="pmp-update-"))
     backup = work / "backup"
     changed: list[str] = []
@@ -117,6 +173,7 @@ def apply_update(package: Path, install_dir: Path) -> tuple[str, int]:
             safe_extract(zf, work / "unpacked")
         unpacked = work / "unpacked"
         manifest = json.loads((unpacked / "update-manifest.json").read_text(encoding="utf-8"))
+        version, build = str(manifest.get("version") or ""), int(manifest.get("build") or 0)
         rels = verify_payload(unpacked, manifest)
         if "PhysicsMathPocket.exe" not in rels:
             raise ValueError("업데이트 패키지에 앱 실행 파일이 없습니다.")
@@ -172,7 +229,9 @@ def apply_update(package: Path, install_dir: Path) -> tuple[str, int]:
             encoding="utf-8",
         )
         os.replace(metadata_tmp, metadata_path)
-        return str(manifest.get("version") or ""), int(manifest.get("build") or 0)
+        if rollback_data_dir is not None:
+            clear_rollback_user_data(rollback_data_dir)
+        return version, build
     except Exception:
         # Restore removed/overwritten files and remove new files from an incomplete update.
         for rel in reversed(changed):
@@ -218,12 +277,12 @@ def main() -> int:
     args = parser.parse_args()
     package = Path(args.package).resolve()
     install_dir = Path(args.install_dir).resolve()
-    wait_for_pid(args.wait_pid)
     try:
-        apply_update(package, install_dir)
+        wait_for_pid(args.wait_pid)
+        data_dir = None
         if args.clear_user_data:
             data_dir = Path(args.user_data_dir).resolve() if args.user_data_dir else (Path(os.environ.get("LOCALAPPDATA", tempfile.gettempdir())) / "PhysicsMathPocket")
-            clear_rollback_user_data(data_dir)
+        apply_update(package, install_dir, rollback_data_dir=data_dir)
     except Exception as exc:
         try:
             (Path(tempfile.gettempdir()) / "PhysicsMathPocket_update_error.txt").write_text(str(exc), encoding="utf-8")

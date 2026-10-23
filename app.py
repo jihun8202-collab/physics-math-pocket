@@ -43,6 +43,8 @@ from simulations import SIM_TITLES as LEGACY_SIM_TITLES, SIM_SUBJECTS as LEGACY_
 from enhanced_simulations import ENHANCED_TITLES, ENHANCED_SUBJECTS, BIOLOGY_TITLES, BIOLOGY_SUBJECTS, build_simulator, simulator_for_term
 from scientific_catalog import MODELS as SCIENCE_MODELS, SCENARIOS as SCIENCE_SCENARIOS
 from korean_study import build_korean_page
+from pocket_glass import GlassCard, bind_hover, make_theme
+from mini_simulation import build_mini_simulator
 SIM_TITLES = {**BIOLOGY_TITLES, **ENHANCED_TITLES, **LEGACY_SIM_TITLES}
 SIM_SUBJECTS = {**LEGACY_SIM_SUBJECTS, **ENHANCED_SUBJECTS, **BIOLOGY_SUBJECTS}
 from formula_catalog import build_formula_catalog, search_formulas
@@ -330,7 +332,11 @@ class PhysicsPocketApp(tk.Tk):
         self.update_check_running = False
         requested_theme = self.settings.get("theme", "system")
         self.theme_name = detect_system_theme() if requested_theme == "system" else requested_theme
-        self.theme = THEMES[self.theme_name]
+        self.theme = make_theme(
+            self.theme_name,
+            str(self.settings.get("accent_color", "indigo")),
+            bool(self.settings.get("glass_effects", True)),
+        )
         self.font_scale = float(self.settings.get("font_scale", 1.0))
         self.current_page = "home"
         self.current_term: Optional[dict] = None
@@ -657,14 +663,13 @@ class PhysicsPocketApp(tk.Tk):
         return row
 
     def _card(self, master: tk.Misc, bg: Optional[str] = None, padx: int = 20, pady: int = 18) -> tk.Frame:
-        t = self.theme
-        outer = tk.Frame(master, bg=t["shadow"])
-        inner = tk.Frame(outer, bg=bg or t["surface"], highlightthickness=1, highlightbackground=t["line"])
-        inner.pack(fill="both", expand=True, padx=(0, 1), pady=(0, 2))
-        inner._content_padding = (padx, pady)  # type: ignore[attr-defined]
-        return outer
+        # GlassCard keeps the same outer/content contract used by every page,
+        # while giving cards a readable opaque surface and a soft rounded edge.
+        return GlassCard(master, self.theme, fill=bg or self.theme["surface"], padx=padx, pady=pady)
 
     def _put_card_content(self, outer: tk.Frame) -> tk.Frame:
+        if hasattr(outer, "content"):
+            return outer.content  # type: ignore[attr-defined]
         inner = outer.winfo_children()[0]
         padx, pady = getattr(inner, "_content_padding", (20, 18))
         content = tk.Frame(inner, bg=inner.cget("bg"))
@@ -1118,8 +1123,10 @@ class PhysicsPocketApp(tk.Tk):
             outer.pack(fill="x", pady=6)
             c = self._put_card_content(outer)
             tk.Label(c, text="직접 움직여 보기", bg=t["surface"], fg=t["text"], font=("Malgun Gothic", self._font(13), "bold")).pack(anchor="w")
-            tk.Label(c, text="GPT의 개념 카드처럼 슬라이더를 움직이면 식·그래프·운동이 즉시 바뀝니다. 실제 실험을 단순화한 학습용 모델입니다.", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(8)), wraplength=790, justify="left").pack(anchor="w", pady=(4, 10))
-            sim = build_simulator(c, term, self.theme, fps=int(self.settings.get("simulation_fps", 30)))
+            tk.Label(c, text="변수를 조절하면 계산·그래프·운동이 즉시 바뀝니다. 실제 법칙을 바탕으로 한 학습용 모델이며 단위와 가정을 함께 표시합니다.", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(8)), wraplength=790, justify="left").pack(anchor="w", pady=(4, 10))
+            sim = build_mini_simulator(c, term, self.theme, fps=int(self.settings.get("simulation_fps", 30)))
+            if sim is None:
+                sim = build_simulator(c, term, self.theme, fps=int(self.settings.get("simulation_fps", 30)))
             if sim is not None:
                 if not bool(self.settings.get("animations", True)):
                     sim.play_btn.configure(state="disabled", text="정적 모드")
@@ -1171,7 +1178,9 @@ class PhysicsPocketApp(tk.Tk):
             outer.pack(fill="x", pady=6)
             c = self._put_card_content(outer)
             tk.Label(c, text="참고 출처", bg=t["surface"], fg=t["text"], font=("Malgun Gothic", self._font(13), "bold")).pack(anchor="w")
-            tk.Label(c, text="본문은 아래 자료를 대조해 새로 풀어쓴 설명이며, 원문을 그대로 복사하지 않았습니다.", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(8)), wraplength=760, justify="left").pack(anchor="w", pady=(5, 10))
+            imported_source = any(str(self.sources.get(source_id, {}).get("id", "")).startswith(("nlm_", "pubchem_")) for source_id in source_ids)
+            source_note = ("공식 자료의 영어 원문·구조 속성을 보존한 수록 항목입니다. 한국어 번역이나 교과 해설로 검증된 내용과 구분해 표시합니다." if imported_source else "본문은 아래 자료를 대조해 새로 풀어쓴 설명이며, 원문을 그대로 복사하지 않았습니다.")
+            tk.Label(c, text=source_note, bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(8)), wraplength=760, justify="left").pack(anchor="w", pady=(5, 10))
             for source_id in source_ids:
                 source = self.sources.get(source_id)
                 if not source:
@@ -1841,9 +1850,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         ):
             return
         try:
-            if rollback:
-                self.install_meta.reset_for_rollback(release.as_dict())
-            else:
+            if not rollback:
                 self.install_meta.record_update_started(release.as_dict(), kind="update")
                 self.install_meta.data["pending_update"]["notes"] = release.notes or "릴리스 노트가 제공되지 않았습니다."
                 self.install_meta._write()
@@ -2062,7 +2069,12 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         scroll.to_top(); self.status_var.set("앱 정보 · {} · Build {}".format(APP_VERSION, APP_BUILD))
 
     def toggle_theme(self) -> None:
-        self.theme_name="dark" if self.theme_name=="light" else "light"; self.theme=THEMES[self.theme_name]; self.settings["theme"]=self.theme_name; self.settings_store.save(self.settings); self._rebuild_current_page(); apply_windows_chrome(self, self.theme_name == "dark")
+        self.theme_name="dark" if self.theme_name=="light" else "light"
+        self.theme=make_theme(self.theme_name, str(self.settings.get("accent_color", "indigo")), bool(self.settings.get("glass_effects", True)))
+        self.settings["theme"]=self.theme_name
+        self.settings_store.save(self.settings)
+        self._rebuild_current_page()
+        apply_windows_chrome(self, self.theme_name == "dark")
 
     def change_font(self, amount: float) -> None:
         new_scale=min(1.4,max(0.8,round(self.font_scale+amount,2)))
@@ -2100,6 +2112,8 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         tk.Label(hero,text="모양 · 검색 · 시뮬레이션 · 업데이트 · 사용자 데이터",bg=t["accent_soft"],fg=t["muted"],font=("Malgun Gothic",9)).pack(anchor="w",padx=20,pady=(0,18))
 
         theme_var=tk.StringVar(value=self.settings.get("theme","system"))
+        accent_var=tk.StringVar(value=self.settings.get("accent_color","indigo"))
+        effects_var=tk.BooleanVar(value=bool(self.settings.get("glass_effects",True)))
         density_var=tk.StringVar(value=self.settings.get("density","comfortable"))
         font_var=tk.DoubleVar(value=self.font_scale)
         fps_var=tk.IntVar(value=int(self.settings.get("simulation_fps",30)))
@@ -2123,6 +2137,10 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         row=tk.Frame(c,bg=t["surface"]); row.pack(fill="x",pady=4)
         tk.Label(row,text="테마",bg=t["surface"],fg=t["muted"],width=18,anchor="w").pack(side="left")
         ttk.Combobox(row,textvariable=theme_var,values=["system","light","dark"],state="readonly",width=18).pack(side="right")
+        row=tk.Frame(c,bg=t["surface"]); row.pack(fill="x",pady=4)
+        tk.Label(row,text="강조 색상",bg=t["surface"],fg=t["muted"],width=18,anchor="w").pack(side="left")
+        ttk.Combobox(row,textvariable=accent_var,values=["indigo","teal","rose"],state="readonly",width=18).pack(side="right")
+        tk.Checkbutton(c,text="글래스 깊이·광택 효과 사용",variable=effects_var,bg=t["surface"],fg=t["text"],activebackground=t["surface"],selectcolor=t["surface2"]).pack(anchor="w",pady=(3,0))
         row=tk.Frame(c,bg=t["surface"]); row.pack(fill="x",pady=4)
         tk.Label(row,text="화면 밀도",bg=t["surface"],fg=t["muted"],width=18,anchor="w").pack(side="left")
         ttk.Combobox(row,textvariable=density_var,values=["comfortable","compact"],state="readonly",width=18).pack(side="right")
@@ -2180,7 +2198,8 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
         buttons=tk.Frame(root,bg=t["bg"]); buttons.pack(fill="x",pady=12)
         def save():
             self.settings.update({
-                "theme":theme_var.get(), "density":density_var.get(), "font_scale":round(float(font_var.get()),2),
+                "theme":theme_var.get(), "accent_color":accent_var.get(), "glass_effects":bool(effects_var.get()),
+                "density":density_var.get(), "font_scale":round(float(font_var.get()),2),
                 "simulation_fps":int(fps_var.get()), "show_simulations":bool(show_var.get()), "animations":bool(anim_var.get()),
                 "storage_limit_gb":int(quota_var.get()), "search_result_limit":int(limit_var.get()),
                 "confirm_external_links":bool(confirm_links_var.get()),
@@ -2195,7 +2214,7 @@ footer{{color:#65757d;text-align:center;padding:20px}} @media print{{body{{backg
             self.db.set_limit_gb(int(quota_var.get()))
             self.font_scale=float(self.settings["font_scale"])
             self.theme_name=detect_system_theme() if self.settings["theme"]=="system" else self.settings["theme"]
-            self.theme=THEMES[self.theme_name]
+            self.theme=make_theme(self.theme_name, str(self.settings.get("accent_color","indigo")), bool(self.settings.get("glass_effects",True)))
             self.result_limit=int(self.settings["search_result_limit"])
             win.destroy(); self._rebuild_current_page()
         self._button(buttons,"저장",save,kind="accent",padx=20,pady=9).pack(side="right")

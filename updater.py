@@ -182,11 +182,6 @@ def _release_from_github(item: Dict[str, Any], asset_contains: str, fallback_bui
             if preferred and preferred in name.casefold() and name.lower().endswith(".exe"):
                 chosen = asset
                 break
-    if not chosen:
-        for asset in assets:
-            if str(asset.get("name") or "").lower().endswith((".zip", ".exe")):
-                chosen = asset
-                break
     digest = _normalize_digest(str(chosen.get("digest") or ""))
     if not build:
         build = default_build_for_version(version, prerelease)
@@ -245,6 +240,8 @@ def list_github_releases(repository: str, channel: str = "beta", asset_contains:
         if channel != "beta" and item.get("prerelease"):
             continue
         release = _release_from_github(item, asset_contains)
+        if "physicsmathpocket_update_" in asset_contains.casefold() and release.asset_kind != "package":
+            continue
         if release.download_url:
             releases.append(release)
     releases.sort(key=lambda r: (parse_version(r.version), r.build), reverse=True)

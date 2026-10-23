@@ -21,6 +21,9 @@ def verify() -> None:
         assert manifest["version"] == APP_VERSION and manifest["build"] == APP_BUILD
         assert len(manifest["files"]) == len(set(item["path"] for item in manifest["files"]))
         assert "PhysicsMathPocketUpdater.exe" in {item["path"] for item in manifest["files"]}
+        inventory = json.loads((ROOT / "dist/PhysicsMathPocket/.pmp-files.json").read_text(encoding="utf-8"))
+        assert (inventory["version"], inventory["build"]) == (APP_VERSION, APP_BUILD)
+        assert set(inventory["files"]) == {item["path"] for item in manifest["files"]}
     with tempfile.TemporaryDirectory(prefix="pmp-release-verification-") as temp:
         install = Path(temp) / "install"
         install.mkdir()

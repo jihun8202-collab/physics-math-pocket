@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 APP_NAME = "PhysicsMathPocket"
-APP_VERSION = "3.5.0"
-APP_BUILD = 35001
+APP_VERSION = "3.5.5"
+APP_BUILD = 35500
 APP_CHANNEL = "beta"
 APP_COPYRIGHT = "Copyright © 2026 Physics + Math Pocket Project"
 
@@ -102,13 +102,44 @@ def _prepare_term_for_search(term: dict) -> dict:
 
 def load_terms() -> List[dict]:
     payload = load_json("data/terms.json")
-    terms = payload.get("terms", [])
+    terms = list(payload.get("terms", []))
     if not isinstance(terms, list) or not terms:
         raise ValueError("수학·과학 개념 데이터가 비어 있습니다.")
+    # Officially sourced supplements are shipped separately so the original
+    # 50,000-card corpus remains byte-for-byte reproducible.  Merge by stable
+    # id and keep the base record when a collision is encountered.
+    supplement_path = resource_path("data/imports/science_terms_355.json")
+    if supplement_path.exists():
+        try:
+            supplement = json.loads(supplement_path.read_text(encoding="utf-8"))
+            seen = {str(item.get("id")) for item in terms if isinstance(item, dict)}
+            for item in supplement.get("terms", []):
+                if not isinstance(item, dict):
+                    continue
+                item_id = str(item.get("id", ""))
+                if item_id and item_id not in seen:
+                    terms.append(item)
+                    seen.add(item_id)
+        except (OSError, ValueError, TypeError):
+            # A damaged optional supplement must not prevent the base app from
+            # opening; release verification reports the missing supplement.
+            pass
     return [_prepare_term_for_search(t) for t in terms]
 
 def load_sources() -> List[dict]:
-    return load_json("data/sources.json").get("sources", [])
+    sources = list(load_json("data/sources.json").get("sources", []))
+    supplement_path = resource_path("data/imports/science_terms_355.json")
+    if supplement_path.exists():
+        try:
+            payload = json.loads(supplement_path.read_text(encoding="utf-8"))
+            seen = {str(item.get("id")) for item in sources if isinstance(item, dict)}
+            for item in payload.get("sources", []):
+                if isinstance(item, dict) and str(item.get("id", "")) not in seen:
+                    sources.append(item)
+                    seen.add(str(item.get("id")))
+        except (OSError, ValueError, TypeError):
+            pass
+    return sources
 
 
 def load_constants() -> List[dict]:

@@ -1,9 +1,9 @@
 #define MyAppName "Physics + Math Pocket"
 #ifndef MyAppVersion
-  #define MyAppVersion "3.5.0"
+  #define MyAppVersion "3.5.5"
 #endif
 #ifndef MyAppBuild
-  #define MyAppBuild "35001"
+  #define MyAppBuild "35500"
 #endif
 #ifndef MyAppChannel
   #define MyAppChannel "Beta"

@@ -2,16 +2,20 @@
 import math
 import tkinter as tk
 from tkinter import ttk
+from core import APP_VERSION, APP_CHANNEL
 from scientific_catalog import MODELS, SCENARIOS
 from simulations import SIM_TITLES as LEGACY, SIM_SUBJECTS as SUBJECTS
 from enhanced_simulations import ENHANCED_TITLES, ENHANCED_SUBJECTS, BIOLOGY_TITLES, build_simulator
 
 PAGE_SIZE=24
+LEGACY_TOOL_COUNT=len(set(ENHANCED_TITLES) | (set(LEGACY)-set(SCENARIOS)))
 
 def build_simulation_browser(app, ScrollableFrame):
     app.current_page='simulations'; app.current_term=None; app._refresh_nav_state()
     frame=app._clear_center(); t=app.theme
-    app._page_title(frame,'과학 실험실 · 3.5 Beta','카드를 눌러 실험을 시작하세요. 감염·면역 실험실 / 50개 모델의 5,000개 조건 실험 / 기존 도구 105개')
+    version_label = APP_VERSION + (' Beta' if APP_CHANNEL == 'beta' else '')
+    app._page_title(frame,'과학 실험실 · ' + version_label,
+                    f'카드를 눌러 실험을 시작하세요. 감염·면역 실험실 / {len(MODELS):,}개 모델의 {len(SCENARIOS):,}개 조건 실험 / 기존 도구 {LEGACY_TOOL_COUNT:,}개')
     toolbar=tk.Frame(frame,bg=t['bg']); toolbar.pack(fill='x',pady=(0,10))
     search=tk.StringVar(); subject=tk.StringVar(value='전체')
     entry=ttk.Entry(toolbar,textvariable=search); entry.pack(side='left',fill='x',expand=True,padx=(0,8),ipady=5)
@@ -33,7 +37,7 @@ def build_simulation_browser(app, ScrollableFrame):
         for key,m in MODELS.items():
             rows.append({'id':key,'title':m['title'],'subject':m['subject'],'description':m['formula'],
                          'badge':'100개 조건 · '+('운동 실험' if m.get('dynamic_kind') else '관계 실험'),'kind':'family'})
-        rows.append({'id':'legacy','title':'기존 학습 도구','subject':'전체','description':'충돌·파동·벡터·계산 관계 등 기존 105개 도구','badge':'기존 도구 유지','kind':'family'})
+        rows.append({'id':'legacy','title':'기존 학습 도구','subject':'전체','description':f'충돌·파동·벡터·계산 관계 등 기존 {LEGACY_TOOL_COUNT:,}개 도구','badge':'기존 도구 유지','kind':'family'})
         return rows
 
     def rows_for_family():
@@ -71,7 +75,7 @@ def build_simulation_browser(app, ScrollableFrame):
         grid=event.widget; width=max(240,event.width)
         columns=3 if width>=1080 else 2 if width>=680 else 1
         if state['columns']!=columns:
-            for column in range(3):grid.columnconfigure(column,weight=1 if column<columns else 0,uniform='experiments')
+            for column in range(3):grid.columnconfigure(column,weight=1 if column<columns else 0,uniform='experiments' if column<columns else '')
             for i,(card,labels) in enumerate(state['cards']):card.grid(row=i//columns,column=i%columns,sticky='nsew',padx=5,pady=5)
             state['columns']=columns
         wrap=max(170,(width-20)/columns-48)

@@ -1,21 +1,78 @@
 {
-  "version": "3.1.4-beta",
-  "build": 31401,
-  "total": 50000,
+  "version": "3.5.5-beta",
+  "build": 35500,
+  "total": 69958,
+  "base_file_count": 50078,
+  "supplement_count": 19880,
   "distribution": {
-    "물리": 8334,
+    "물리": 8370,
     "수학": 8334,
-    "화학": 8333,
-    "생명과학": 8333,
+    "화학": 20000,
+    "생명과학": 16546,
     "지구과학": 8333,
-    "천문학": 8333
+    "천문학": 8333,
+    "국어": 42
   },
-  "core_detailed_count": 2363,
+  "targets": {
+    "수학": 10000,
+    "물리": 15000,
+    "화학": 20000,
+    "생명과학": 9000,
+    "지구과학": 9500,
+    "천문학": 9000,
+    "국어": 50000
+  },
+  "target_total": 122500,
+  "target_shortfall": {
+    "수학": 1666,
+    "물리": 6630,
+    "화학": 0,
+    "생명과학": 0,
+    "지구과학": 1167,
+    "천문학": 667,
+    "국어": 49958
+  },
+  "core_detailed_count": 2441,
+  "core_detailed_count_note": "기존 비인덱스 항목 수. 모든 항목이 상세 해설·예제까지 검증되었다는 뜻이 아닙니다.",
   "extended_index_count": 47637,
-  "note": "핵심 2,363개는 기존 상세 표제어이며, 나머지는 균형 확장을 위한 학습 주제형 확장 인덱스입니다. 확장 인덱스는 핵심 표제어를 보조하며 허위 세부 사실을 생성하지 않도록 짧은 연결 설명만 제공합니다.",
-  "source_strategy": {
-    "curriculum": "2022 개정 수학/과학 교육과정 범위와 OpenStax 표준 범위를 분류 기준으로 사용",
-    "math": "OpenStax Math, NIST DLMF",
-    "science": "OpenStax Science, NASA glossaries, NIST/BIPM for physical standards"
+  "official_original_count": 8213,
+  "official_structure_count": 11667,
+  "authored_316_count": 78,
+  "original_50000_sha256": "6e3ea6aa5363a9618f69905b8c95dd756a8349effa392f6adf21d178efdc494b",
+  "supplement_sha256": "1b63fb6dcbb2c16920ed511ec877c9216c8e1b56bc7ec42fda34a7c762946715",
+  "note": "목표와 실제 수록량을 분리합니다. 기존 확장 인덱스는 상세 카드로 세지 않으며 공식 원문·구조 자료도 한국어 교과 해설로 세지 않습니다. 전 과목 목표는 아직 미달입니다.",
+  "sources": [
+    {
+      "id": "nlm_mesh_2026",
+      "name": "NLM MeSH 2026 · 공식 영어 원문",
+      "organization": "U.S. National Library of Medicine",
+      "url": "https://www.nlm.nih.gov/databases/download/mesh.html",
+      "download_url": "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.gz",
+      "snapshot_sha256": "449792ed59ba4d60035e44724352f7361ec0dc945b67dcd821a50ff32f81bcdb",
+      "validated_records": 8266,
+      "source_language": "en",
+      "selection": "Descriptor tree prefixes A, B or G; nonempty preferred ScopeNote",
+      "license": "NLM Terms and Conditions",
+      "license_url": "https://www.nlm.nih.gov/databases/download/terms_and_conditions.html",
+      "notice": "Courtesy of the U.S. National Library of Medicine. NLM은 이 앱을 보증하지 않습니다. 이 자료는 내려받은 시점의 스냅샷이며 NLM의 가장 최신 자료와 다를 수 있습니다."
+    },
+    {
+      "id": "pubchem_computed_properties",
+      "name": "PubChem · 공식 계산 구조 속성",
+      "organization": "NCBI, U.S. National Library of Medicine",
+      "url": "https://pubchem.ncbi.nlm.nih.gov/",
+      "snapshot_sha256": "722886cd20c98f890f68b2205612b12e83e8eb8130471a9c0473def0240520fe",
+      "validated_records": 19990,
+      "source_language": "en",
+      "selection": "CID, MolecularFormula, MolecularWeight, IUPACName, InChIKey only",
+      "license": "NLM terms; contributor annotations excluded",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/downloads",
+      "notice": "Courtesy of the U.S. National Library of Medicine. NLM은 이 앱을 보증하지 않습니다. 이 자료는 내려받은 시점의 스냅샷이며 NLM의 가장 최신 자료와 다를 수 있습니다."
+    }
+  ],
+  "deduplication": {
+    "duplicate_title": 55,
+    "duplicate_structure": 15,
+    "chemistry_target_reached": 8306
   }
 }

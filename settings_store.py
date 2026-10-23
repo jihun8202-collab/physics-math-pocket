@@ -11,6 +11,8 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     # in Settings for a fork or an internal test feed.
     "update_repository": "jihun8202-collab/physics-math-pocket",
     "theme": "system",
+    "accent_color": "indigo",
+    "glass_effects": True,
     "font_scale": 1.0,
     "density": "comfortable",
     "animations": True,
@@ -50,6 +52,9 @@ class SettingsStore:
         data["search_result_limit"] = min(300, max(30, int(data.get("search_result_limit", 100))))
         if data.get("theme") not in ("system", "light", "dark"):
             data["theme"] = "system"
+        if data.get("accent_color") not in ("indigo", "teal", "rose"):
+            data["accent_color"] = "indigo"
+        data["glass_effects"] = bool(data.get("glass_effects", True))
         if data.get("density") not in ("comfortable", "compact"):
             data["density"] = "comfortable"
         if data.get("update_channel") not in ("stable", "beta"):
