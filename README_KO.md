@@ -1,6 +1,6 @@
 # Physics + Math Pocket
 
-물리·수학·과학 개념 사전과 국어 학습을 제공하는 Windows 앱입니다. 현재 버전은 **3.5.5 Beta · Build 35500**입니다.
+물리·수학·과학 개념 사전과 국어 학습을 제공하는 Windows 앱입니다. 현재 버전은 **3.5.5 Beta · Build 35501**입니다.
 
 3.5의 핵심은 **몸 전체 감염·면역 실험실**입니다. 18개 대표 장기/조직과 12개 면역 활동을 지도·확대 도식·상태 표·그래프로 관찰하고, 감염 유입·세포 활동·사이토카인 과반응·발열 신호·가상 치료 작용과 시간 배속을 조절합니다. 나이·성별은 기록용 프로필이며 4가지 기저질환 조건은 가상 계수로 비교합니다. 계수는 교육용 가정이며 실제 환자의 통증·사망까지 남은 시간이나 임상 중증도를 산출하지 않습니다. 범위와 방정식은 [BIOLOGY_MODEL.md](BIOLOGY_MODEL.md)에 기록했습니다.
 
@@ -12,7 +12,7 @@
 
 [최신 릴리스](https://github.com/jihun8202-collab/physics-math-pocket/releases/latest)에서 `PhysicsMathPocket_Setup_*.exe`를 내려받아 실행하세요. 사용자 데이터는 앱 설치 위치와 별도로 `%LOCALAPPDATA%\PhysicsMathPocket`에 저장됩니다. 설치 파일은 코드 서명되지 않았습니다.
 
-3.5.5 Beta는 [베타 릴리스](https://github.com/jihun8202-collab/physics-math-pocket/releases/tag/v3.5.5_Beta_Build35500)에서 받을 수 있습니다. 기존 정식 앱에서는 설정의 업데이트 채널을 Beta로 선택한 뒤 업데이트 확인을 누르세요. 정식 채널에 베타 버전을 자동 설치하지 않습니다.
+3.5.5 Beta는 [베타 릴리스](https://github.com/jihun8202-collab/physics-math-pocket/releases/tag/v3.5.5_Beta_Build35501)에서 받을 수 있습니다. 기존 정식 앱에서는 설정의 업데이트 채널을 Beta로 선택한 뒤 업데이트 확인을 누르세요. 정식 채널에 베타 버전을 자동 설치하지 않습니다.
 
 앱의 업데이트 센터에서 새 버전을 확인할 수 있습니다. 시작할 때 자동 확인이 기본으로 켜져 있으며, 사용자가 설치를 선택하면 검증한 ZIP을 적용한 뒤 다시 시작합니다. 네트워크 실패 시 기존 오프라인 학습 기능을 계속 사용할 수 있습니다.
 

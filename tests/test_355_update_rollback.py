@@ -75,7 +75,10 @@ class Rollback355Tests(unittest.TestCase):
             before_user, before_install = self.snapshots(user), self.snapshots(install)
             original_replace = update_agent.os.replace
             def fail_one_move(source, target):
-                if Path(source) == user / "install_metadata.json":
+                # clear_rollback_user_data moves from its temporary rollback
+                # directory; matching the stable filename keeps this fault
+                # injection deterministic on Windows and POSIX.
+                if Path(source).name == "install_metadata.json":
                     raise PermissionError("simulated locked metadata")
                 return original_replace(source, target)
             with patch("update_agent.os.replace", side_effect=fail_one_move):
