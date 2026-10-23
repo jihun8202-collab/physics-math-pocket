@@ -42,8 +42,8 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(loaded["update_repository"], "jihun8202-collab/physics-math-pocket")
 
     def test_beta_identity(self):
-        self.assertEqual(APP_VERSION, "3.5.10")
-        self.assertEqual(APP_BUILD, 35100)
+        self.assertEqual(APP_VERSION, "4.0.0")
+        self.assertEqual(APP_BUILD, 40000)
         self.assertEqual(APP_CHANNEL, "beta")
 
     def test_default_build_mapping(self):
@@ -53,7 +53,7 @@ class UpdateLab313Tests(unittest.TestCase):
     def test_local_setup_filename_is_detected(self):
         with tempfile.TemporaryDirectory() as td:
             folder = Path(td)
-            setup = folder / "PhysicsMathPocket_Setup_3.6.0_Beta_Build36000.exe"
+            setup = folder / "PhysicsMathPocket_Setup_4.0.1_Beta_Build40001.exe"
             setup.write_bytes(b"test-installer")
             result = check_for_updates(
                 APP_VERSION,
@@ -65,8 +65,8 @@ class UpdateLab313Tests(unittest.TestCase):
             self.assertEqual(result.status, "update_available")
             self.assertEqual(result.source, "local")
             self.assertIsNotNone(result.release)
-            self.assertEqual(result.release.version, "3.6.0")
-            self.assertEqual(result.release.build, 36000)
+            self.assertEqual(result.release.version, "4.0.1")
+            self.assertEqual(result.release.build, 40001)
             self.assertTrue(result.release.is_beta)
             self.assertEqual(result.release.sha256, sha256_file(setup))
 
@@ -89,10 +89,10 @@ class UpdateLab313Tests(unittest.TestCase):
             setup = folder / "next.exe"
             setup.write_bytes(b"next-version")
             manifest = {
-                "version": "3.6.0",
-                "build": 36000,
+                "version": "4.0.1",
+                "build": 40001,
                 "channel": "stable",
-                "name": "3.6.0 Stable",
+                "name": "4.0.1 Stable",
                 "file": "next.exe",
                 "sha256": sha256_file(setup),
             }

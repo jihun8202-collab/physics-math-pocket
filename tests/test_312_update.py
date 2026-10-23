@@ -15,21 +15,21 @@ from metadata_store import InstallMetadataStore
 
 class UpdateInfrastructure312Tests(unittest.TestCase):
     def test_version_and_build(self):
-        self.assertEqual(APP_VERSION, "3.5.10")
-        self.assertEqual(APP_BUILD, 35100)
+        self.assertEqual(APP_VERSION, "4.0.0")
+        self.assertEqual(APP_BUILD, 40000)
         self.assertEqual(APP_CHANNEL, "beta")
         self.assertIn("Copyright", APP_COPYRIGHT)
 
     def test_beta_version_comparison(self):
         self.assertLess(parse_version("3.2.0-beta.1"), parse_version("3.2.0"))
-        release = ReleaseInfo("3.6.0", 36000, "beta", "3.6.0 Beta 1")
+        release = ReleaseInfo("4.0.1", 40001, "beta", "4.0.1 Beta 1")
         self.assertTrue(release_is_newer(release, APP_VERSION, APP_BUILD))
 
     def test_local_manifest_beta_channel(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "latest.json"
             path.write_text(json.dumps({"releases": [
-                {"version": "3.6.0", "build": 36000, "channel": "beta", "name": "3.6.0 Beta 1"},
+                {"version": "4.0.1", "build": 40001, "channel": "beta", "name": "4.0.1 Beta 1"},
                 {"version": "3.1.2", "build": 31200, "channel": "stable", "name": "3.1.2"},
             ]}), encoding="utf-8")
             result = check_for_updates(APP_VERSION, APP_BUILD, channel="beta", manifest_url=path.as_uri())
@@ -41,7 +41,7 @@ class UpdateInfrastructure312Tests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "latest.json"
             path.write_text(json.dumps({"releases": [
-                {"version": "3.6.0", "build": 36000, "channel": "beta", "name": "3.6.0 Beta 1"},
+                {"version": "4.0.1", "build": 40001, "channel": "beta", "name": "4.0.1 Beta 1"},
                 {"version": "3.1.2", "build": 31200, "channel": "stable", "name": "3.1.2"},
             ]}), encoding="utf-8")
             result = check_for_updates(APP_VERSION, APP_BUILD, channel="stable", manifest_url=path.as_uri())
