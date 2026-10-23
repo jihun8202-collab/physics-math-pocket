@@ -12,8 +12,8 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 APP_NAME = "PhysicsMathPocket"
-APP_VERSION = "3.5.5"
-APP_BUILD = 35501
+APP_VERSION = "3.5.5.5"
+APP_BUILD = 35505
 APP_CHANNEL = "beta"
 APP_COPYRIGHT = "Copyright © 2026 Physics + Math Pocket Project"
 

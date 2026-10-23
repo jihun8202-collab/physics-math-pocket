@@ -69,13 +69,13 @@ class UpdateCheckResult:
 
 
 _VERSION_RE = re.compile(
-    r"(?P<major>\d+)(?:\.(?P<minor>\d+))?(?:\.(?P<patch>\d+))?"
+    r"(?P<major>\d+)(?:\.(?P<minor>\d+))?(?:\.(?P<patch>\d+))?(?:\.(?P<revision>\d+))?"
     r"(?:[-_.]?(?P<pre>alpha|beta|rc|preview)[-_.]?(?P<pre_num>\d+)?)?",
     re.I,
 )
 _BUILD_RE = re.compile(r"(?:build|b)[-_. ]?(\d+)", re.I)
 _LOCAL_SETUP_RE = re.compile(
-    r"PhysicsMathPocket_Setup_(?P<version>\d+\.\d+\.\d+)"
+    r"PhysicsMathPocket_Setup_(?P<version>\d+\.\d+\.\d+(?:\.\d+)?)"
     r"(?:[-_. ]?(?P<channel>beta|preview|rc|alpha|stable))?"
     r"(?:[-_. ]?(?:build|b)[-_. ]?(?P<build>\d+))?\.exe$",
     re.I,
@@ -90,10 +90,11 @@ def parse_version(value: str) -> Tuple[int, int, int, int, int]:
     major = int(match.group("major") or 0)
     minor = int(match.group("minor") or 0)
     patch = int(match.group("patch") or 0)
+    revision = int(match.group("revision") or 0)
     pre = (match.group("pre") or "").lower()
     pre_num = int(match.group("pre_num") or 0)
     rank = {"alpha": -4, "beta": -3, "preview": -2, "rc": -1}.get(pre, 0)
-    return (major, minor, patch, rank, pre_num)
+    return (major, minor, patch, revision, rank, pre_num)
 
 
 def release_is_newer(release: ReleaseInfo, current_version: str, current_build: int) -> bool:
@@ -105,8 +106,8 @@ def release_is_newer(release: ReleaseInfo, current_version: str, current_build: 
 
 
 def default_build_for_version(version: str, beta: bool = False) -> int:
-    major, minor, patch, _rank, _pre_num = parse_version(version)
-    base = major * 10000 + minor * 1000 + patch * 100
+    major, minor, patch, revision, _rank, _pre_num = parse_version(version)
+    base = major * 1000000 + minor * 100000 + patch * 10000 + revision * 100
     return base + (1 if beta else 0)
 
 
@@ -209,12 +210,15 @@ def _check_github(repository: str, channel: str, asset_contains: str, timeout: f
     if not isinstance(payload, list):
         return UpdateCheckResult("error", "GitHub 릴리스 응답 형식이 올바르지 않습니다.", source="github")
     candidates: List[ReleaseInfo] = []
+    max_version = parse_version(str(_load_config().get("max_version") or "9999.9999.9999.9999"))
     for item in payload:
         if not isinstance(item, dict) or item.get("draft"):
             continue
         if channel != "beta" and item.get("prerelease"):
             continue
         release = _release_from_github(item, asset_contains)
+        if parse_version(release.version) > max_version:
+            continue
         # A just-created or failed build may have a public page but no payload.
         # Only offer versions that can actually be downloaded and installed.
         if release.download_url:
@@ -234,12 +238,15 @@ def list_github_releases(repository: str, channel: str = "beta", asset_contains:
     if not isinstance(payload, list):
         return []
     releases: List[ReleaseInfo] = []
+    max_version = parse_version(str(_load_config().get("max_version") or "9999.9999.9999.9999"))
     for item in payload:
         if not isinstance(item, dict) or item.get("draft"):
             continue
         if channel != "beta" and item.get("prerelease"):
             continue
         release = _release_from_github(item, asset_contains)
+        if parse_version(release.version) > max_version:
+            continue
         if "physicsmathpocket_update_" in asset_contains.casefold() and release.asset_kind != "package":
             continue
         if release.download_url:
