@@ -15,8 +15,8 @@ from metadata_store import InstallMetadataStore
 
 class UpdateInfrastructure312Tests(unittest.TestCase):
     def test_version_and_build(self):
-        self.assertEqual(APP_VERSION, "3.5.5")
-        self.assertEqual(APP_BUILD, 35501)
+        self.assertEqual(APP_VERSION, "3.5.10")
+        self.assertEqual(APP_BUILD, 35100)
         self.assertEqual(APP_CHANNEL, "beta")
         self.assertIn("Copyright", APP_COPYRIGHT)
 

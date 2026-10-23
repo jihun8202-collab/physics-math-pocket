@@ -22,7 +22,7 @@ class FinalReleaseTests(unittest.TestCase):
         cls.formulas = build_formula_catalog(cls.terms)
 
     def test_final_version(self) -> None:
-        self.assertEqual(APP_VERSION, "3.5.5")
+        self.assertEqual(APP_VERSION, "3.5.10")
 
     def test_final_content_targets(self) -> None:
         self.assertGreaterEqual(len(self.terms), 2000)
