@@ -3,7 +3,7 @@
   #define MyAppVersion "4.0.0"
 #endif
 #ifndef MyAppBuild
-  #define MyAppBuild "40000"
+  #define MyAppBuild "40001"
 #endif
 #ifndef MyAppChannel
   #define MyAppChannel "Beta"

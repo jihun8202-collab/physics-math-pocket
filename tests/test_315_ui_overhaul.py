@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class UIOverhaul315Tests(unittest.TestCase):
     def test_revision_identity(self):
         self.assertEqual(APP_VERSION,'4.0.0')
-        self.assertEqual(APP_BUILD,40000)
+        self.assertEqual(APP_BUILD,40001)
         self.assertEqual(APP_CHANNEL,'beta')
 
     def test_new_shell_components_exist(self):

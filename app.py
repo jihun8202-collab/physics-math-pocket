@@ -684,13 +684,19 @@ class PhysicsPocketApp(tk.Tk):
 
     def _home_subject_card(self, master: tk.Misc, subject: str, icon: str, count: int) -> tk.Frame:
         t = self.theme
-        outer = self._card(master, padx=14, pady=14)
+        tone = self._soft_subject_color(subject)
+        outer = self._card(master, padx=16, pady=16)
         c = self._put_card_content(outer)
+        stripe = tk.Frame(c, bg=tone, height=5); stripe.pack(fill="x", pady=(0,12)); stripe.pack_propagate(False)
         top = tk.Frame(c, bg=t["surface"]); top.pack(fill="x")
-        tk.Label(top, text=icon, bg=t["accent_soft"], fg=self._soft_subject_color(subject), font=("Segoe UI Symbol", self._font(15), "bold"), padx=8, pady=5).pack(side="left")
-        tk.Label(c, text=subject, bg=t["surface"], fg=t["text"], font=("Malgun Gothic", self._font(10), "bold"), anchor="w").pack(fill="x", pady=(10,2))
-        tk.Label(c, text=f"{count:,}개 개념", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(8)), anchor="w").pack(fill="x")
-        tk.Button(c, text="탐색하기  →", command=lambda s=subject:self.select_subject(s), relief="flat", bd=0, bg=t["surface"], fg=t["blue"], activebackground=t["surface"], activeforeground=t["accent2"], font=("Malgun Gothic", self._font(8), "bold"), anchor="w", cursor="hand2").pack(fill="x", pady=(11,0))
+        badge = tk.Label(top, text=icon, bg=t["accent_soft"], fg=tone, font=("Segoe UI Symbol", self._font(16), "bold"), padx=10, pady=7)
+        badge.pack(side="left")
+        meta = tk.Frame(top, bg=t["surface"]); meta.pack(side="left", fill="x", expand=True, padx=(12,0))
+        tk.Label(meta, text=subject, bg=t["surface"], fg=t["text"], font=("Malgun Gothic", self._font(12), "bold"), anchor="w").pack(fill="x")
+        tk.Label(meta, text="개념 · 공식 · 실험", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(7)), anchor="w").pack(fill="x", pady=(3,0))
+        tk.Label(c, text=f"{count:,}", bg=t["surface"], fg=tone, font=("Segoe UI", self._font(21), "bold"), anchor="w").pack(fill="x", pady=(15,0))
+        tk.Label(c, text="검증된 학습 항목", bg=t["surface"], fg=t["muted"], font=("Malgun Gothic", self._font(8)), anchor="w").pack(fill="x")
+        tk.Button(c, text="탐색 시작   →", command=lambda s=subject:self.select_subject(s), relief="flat", bd=0, bg=t["accent_soft"], fg=t["accent2"], activebackground=t["surface3"], activeforeground=t["text"], font=("Malgun Gothic", self._font(8), "bold"), anchor="w", cursor="hand2", padx=10, pady=8).pack(fill="x", pady=(14,0))
         return outer
 
     def _simple_list_row(self, master: tk.Misc, title: str, subtitle: str, command: Callable, icon: str = "•") -> None:
@@ -861,9 +867,11 @@ class PhysicsPocketApp(tk.Tk):
         self._page_title(inner, "빠른 탐색", "과목을 먼저 고르거나 위 검색창에서 바로 시작하세요.")
         subjects = [("수학","∑"),("물리","⚛"),("화학","⚗"),("생명과학","DNA"),("지구과학","◎"),("천문학","✦"),("국어","가")]
         grid = tk.Frame(inner, bg=t["bg"]); grid.pack(fill="x", pady=(0,18))
-        for i in range(len(subjects)): grid.grid_columnconfigure(i, weight=1, uniform="subjects")
+        columns = 4
+        for i in range(columns): grid.grid_columnconfigure(i, weight=1, uniform="subjects")
         for i,(subject,icon) in enumerate(subjects):
-            card=self._home_subject_card(grid,subject,icon,self.subject_counts.get(subject,0)); card.grid(row=0,column=i,sticky="nsew",padx=(0 if i==0 else 5,0 if i==len(subjects)-1 else 5))
+            row, col = divmod(i, columns)
+            card=self._home_subject_card(grid,subject,icon,self.subject_counts.get(subject,0)); card.grid(row=row,column=col,sticky="nsew",padx=(0 if col==0 else 6,0 if col==columns-1 else 6),pady=(0 if row==0 else 10,0))
 
         cols=tk.Frame(inner,bg=t["bg"]); cols.pack(fill="x",pady=(0,18)); cols.grid_columnconfigure(0,weight=1); cols.grid_columnconfigure(1,weight=1)
         left=self._card(cols,padx=20,pady=18); left.grid(row=0,column=0,sticky="nsew",padx=(0,8)); lc=self._put_card_content(left)

@@ -43,7 +43,7 @@ class UpdateLab313Tests(unittest.TestCase):
 
     def test_beta_identity(self):
         self.assertEqual(APP_VERSION, "4.0.0")
-        self.assertEqual(APP_BUILD, 40000)
+        self.assertEqual(APP_BUILD, 40001)
         self.assertEqual(APP_CHANNEL, "beta")
 
     def test_default_build_mapping(self):
