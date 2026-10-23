@@ -57,3 +57,4 @@ jobs:
             gh release create $env:RELEASE_TAG @assets @flags --verify-tag --title "Physics + Math Pocket $env:RELEASE_TAG" --notes-file RELEASE_NOTES.md
           }
           if ($LASTEXITCODE -ne 0) { throw 'Release creation failed.' }
+
